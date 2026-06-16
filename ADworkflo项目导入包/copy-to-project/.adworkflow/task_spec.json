@@ -1,0 +1,20 @@
+{
+  "task_id": "",
+  "goal": "",
+  "non_goals": [],
+  "acceptance_criteria": [],
+  "risk_level": "low",
+  "execution_mode": "solo_worker",
+  "allowed_actions": [
+    "read",
+    "edit",
+    "test"
+  ],
+  "required_outputs": [
+    "context_raw.json",
+    "context_manifest.json",
+    "worker_state.json",
+    "verification_result.json"
+  ],
+  "notes": []
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "ADworkflo.architecture_manifest.v1",
+  "created_at": "",
+  "project_size": "",
+  "classification_source": "product_docs_empty",
+  "expected_complexity_score": 0,
+  "context_strategy": "",
+  "execution_mode": "",
+  "analysis_basis": [],
+  "detected_signals": {},
+  "planned_modules": [],
+  "data_stores": [],
+  "agent_features": [],
+  "risk_areas": [],
+  "recommended_artifacts": [],
+  "recommended_next_actions": []
+}
+

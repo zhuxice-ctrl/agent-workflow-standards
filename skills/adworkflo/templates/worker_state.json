@@ -1,0 +1,12 @@
+{
+  "task_id": "",
+  "status": "not_started",
+  "done": [],
+  "changed_files": [],
+  "current_problem": "",
+  "next_action": "",
+  "must_keep_context": [],
+  "remaining_risks": [],
+  "clarification_events": [],
+  "timeout_fallbacks": []
+}

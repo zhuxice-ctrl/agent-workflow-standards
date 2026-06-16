@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/execution_plan.schema.json",
+  "title": "ADworkflo execution_plan",
+  "type": "object",
+  "required": [
+    "schema",
+    "mvp_id",
+    "source_docs",
+    "worker_policy",
+    "batches"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ADworkflo.execution_plan.v1"
+    },
+    "mvp_id": {
+      "type": "string"
+    },
+    "source_docs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "worker_policy": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "batches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "batch_id",
+          "parallel",
+          "tasks"
+        ],
+        "properties": {
+          "batch_id": {
+            "type": "string"
+          },
+          "parallel": {
+            "type": "boolean"
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "integration_tasks": {
+      "type": "array"
+    },
+    "open_questions": {
+      "type": "array"
+    }
+  },
+  "additionalProperties": true
+}

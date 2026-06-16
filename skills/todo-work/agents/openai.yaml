@@ -1,0 +1,4 @@
+interface:
+  display_name: "TODOwork"
+  short_description: "Turn TODO modules into ADworkflo execution plans"
+  default_prompt: "Use TODOwork to read ARCH/TODO and build execution_plan, task boundaries, and subagent orchestration artifacts."

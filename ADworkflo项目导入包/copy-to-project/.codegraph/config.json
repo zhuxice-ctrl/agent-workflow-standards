@@ -1,0 +1,28 @@
+{
+  "project_size": "",
+  "context_strategy": "",
+  "include": [
+    "."
+  ],
+  "exclude": [
+    ".git",
+    "node_modules",
+    ".venv",
+    "venv",
+    "dist",
+    "build",
+    "__pycache__",
+    ".next",
+    ".turbo",
+    "coverage"
+  ],
+  "languages": [],
+  "test_patterns": [
+    "tests",
+    "__tests__",
+    "*.test.*",
+    "*.spec.*"
+  ],
+  "supported_queries": []
+}
+

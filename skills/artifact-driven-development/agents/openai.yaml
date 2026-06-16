@@ -1,0 +1,4 @@
+interface:
+  display_name: "Artifact-driven Development"
+  short_description: "Artifact-driven agent workflow"
+  default_prompt: "Use $artifact-driven-development to plan and run a complex development task with structured artifacts."

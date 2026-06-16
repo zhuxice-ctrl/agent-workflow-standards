@@ -1,0 +1,10 @@
+{
+  "task_id": "替换为短标识",
+  "context_level": "L0-rg-manual-context-manifest",
+  "read_first": [],
+  "relevant_symbols": [],
+  "entrypoints": [],
+  "likely_tests": [],
+  "do_not_touch": [],
+  "open_questions": []
+}

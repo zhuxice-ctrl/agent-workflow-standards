@@ -1,0 +1,13 @@
+{
+  "task_id": "替换为短标识",
+  "status": "in_progress",
+  "done": [],
+  "changed_files": [],
+  "current_problem": null,
+  "next_action": null,
+  "must_keep_context": [],
+  "discarded_context": [],
+  "remaining_risks": [],
+  "clarification_events": [],
+  "timeout_fallbacks": []
+}

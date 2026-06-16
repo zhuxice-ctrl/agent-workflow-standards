@@ -1,0 +1,24 @@
+{
+  "task_id": "替换为短标识",
+  "goal": "描述具体产出。",
+  "non_goals": [
+    "列出明确的范围外事项。"
+  ],
+  "acceptance_criteria": [
+    "列出可观察的成功标准。"
+  ],
+  "risk_level": "low",
+  "execution_mode": "solo_worker",
+  "allowed_actions": [
+    "read",
+    "edit",
+    "test"
+  ],
+  "required_outputs": [
+    "context_raw.json",
+    "context_manifest.json",
+    "worker_state.json",
+    "verification_result.json"
+  ],
+  "notes": []
+}

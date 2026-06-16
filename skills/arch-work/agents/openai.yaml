@@ -1,0 +1,4 @@
+interface:
+  display_name: "ARCHwork"
+  short_description: "Convert ARCH docs into ADworkflo execution inputs"
+  default_prompt: "Use ARCHwork to read PRD/ARCH/PROJECT and prepare module skill routing and architecture execution artifacts."

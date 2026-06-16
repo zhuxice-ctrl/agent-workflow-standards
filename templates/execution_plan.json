@@ -1,0 +1,19 @@
+{
+  "schema": "ADworkflo.execution_plan.v1",
+  "mvp_id": "",
+  "source_docs": [
+    "ARCH.md",
+    "TODO.md"
+  ],
+  "worker_policy": {
+    "worker_limit": "unbounded-by-design",
+    "batching_rule": "driven-by-todo-modules-and-arch-dependencies",
+    "handoff_outputs": [
+      "diff",
+      "worker_state.json"
+    ]
+  },
+  "batches": [],
+  "integration_tasks": [],
+  "open_questions": []
+}

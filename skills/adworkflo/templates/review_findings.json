@@ -1,0 +1,12 @@
+{
+  "task_id": "",
+  "status": "approved",
+  "blocking_findings": [],
+  "non_blocking_findings": [],
+  "review_basis": [
+    "task_spec",
+    "change_summary_or_diff",
+    "verification_result"
+  ]
+}
+

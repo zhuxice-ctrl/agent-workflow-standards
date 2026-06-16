@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/context_manifest.schema.json",
+  "title": "ADworkflo context_manifest",
+  "type": "object",
+  "required": [
+    "task_id",
+    "context_level",
+    "read_first",
+    "relevant_symbols",
+    "entrypoints",
+    "likely_tests",
+    "do_not_touch",
+    "open_questions"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context_level": {
+      "type": "string"
+    },
+    "read_first": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "relevant_symbols": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "entrypoints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "likely_tests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "do_not_touch": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}
