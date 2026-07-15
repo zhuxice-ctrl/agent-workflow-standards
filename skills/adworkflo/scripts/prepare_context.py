@@ -119,6 +119,14 @@ def rel(project: Path, path: Path) -> str:
     return path.resolve().relative_to(project.resolve()).as_posix()
 
 
+def artifact_reference(project: Path, path: Path) -> str:
+    """Return a stable project-relative reference when the artifact is local."""
+    try:
+        return rel(project, path)
+    except ValueError:
+        return path.resolve().as_posix()
+
+
 def existing(project: Path, paths: list[str]) -> list[str]:
     return [p for p in paths if (project / p).exists()]
 
@@ -518,6 +526,8 @@ def main() -> int:
             raw, manifest, semantic_slice, context_preflight = prepare_l2(
                 project, task, args.no_build_index, args.slice_depth, args.slice_budget, args.confidence_threshold,
             )
+            manifest["semantic_slice"] = artifact_reference(project, slice_out)
+            manifest["context_preflight"] = artifact_reference(project, preflight_out)
             write_json(slice_out, semantic_slice)
             write_json(preflight_out, context_preflight)
             preserve_l2_baseline(preflight_out, context_preflight)

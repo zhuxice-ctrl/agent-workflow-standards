@@ -291,6 +291,59 @@ print(json.dumps({"revision": revision}))
             (target / name).write_text(json.dumps(value), encoding="utf-8")
         return run_dir, spec, semantic_slice, context_preflight, manifest
 
+    def test_prepare_cli_manifest_references_run_scoped_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            project = Path(temp)
+            (project / "app.py").write_text(
+                "def entry():\n    return 1\n", encoding="utf-8",
+            )
+            task_dir = (
+                project / ".adworkflow" / "runs" / "run-l2"
+                / "tasks" / "task-l2"
+            )
+            task_dir.mkdir(parents=True)
+            task_path = task_dir / "task_spec.json"
+            task_path.write_text(json.dumps({
+                "schema": "ADworkflo.task_spec.v2",
+                "configured": True,
+                "task_id": "task-l2",
+                "task_type": "code",
+                "goal": "Change app.entry.",
+                "acceptance_criteria": ["app.entry is verified."],
+                "do_not_touch": [],
+                "entrypoints": ["app.entry"],
+                "context_sources": [],
+                "codegraph_level": "l2",
+            }), encoding="utf-8")
+            outputs = {
+                "raw": task_dir / "context_raw.json",
+                "manifest": task_dir / "context_manifest.json",
+                "slice": task_dir / "semantic_slice.json",
+                "preflight": task_dir / "context_preflight.json",
+            }
+            arguments = [
+                "prepare_context.py", "--project", str(project),
+                "--task", str(task_path), "--level", "l2",
+                "--raw-out", str(outputs["raw"]),
+                "--manifest-out", str(outputs["manifest"]),
+                "--slice-out", str(outputs["slice"]),
+                "--preflight-out", str(outputs["preflight"]),
+            ]
+
+            with patch.object(sys, "argv", arguments), redirect_stdout(io.StringIO()):
+                self.assertEqual(0, prepare_context.main())
+
+            manifest = json.loads(outputs["manifest"].read_text(encoding="utf-8"))
+            self.assertEqual(
+                outputs["slice"].relative_to(project).as_posix(),
+                manifest["semantic_slice"],
+            )
+            self.assertEqual(
+                outputs["preflight"].relative_to(project).as_posix(),
+                manifest["context_preflight"],
+            )
+            self.assertTrue(all(path.exists() for path in outputs.values()))
+
     def test_accepted_context_and_passed_impact_allow_verified(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             project = Path(temp)
