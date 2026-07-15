@@ -36,6 +36,12 @@ class DocumentationTests(unittest.TestCase):
         readme = (ROOT / "README.md").read_text(encoding="utf-8-sig")
         self.assertIn("install-adworkflow.ps1", readme)
         self.assertIn("init_adworkflow.py", readme)
+        quick_start = readme.index("## 新项目立即使用")
+        concepts = readme.index("## 先区分三个概念")
+        self.assertLess(quick_start, concepts)
+        prominent_quick_start = readme[quick_start:concepts]
+        self.assertIn("> [!IMPORTANT]", prominent_quick_start)
+        self.assertIn("使用 adworkflo 管理这个项目", prominent_quick_start)
         bootstrap_docs = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in (
