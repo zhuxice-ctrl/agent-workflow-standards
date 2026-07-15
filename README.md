@@ -1,6 +1,6 @@
-# ADworkflo
+# ADworkflow
 
-ADworkflo 是一套面向 AI 辅助开发的 Artifact-driven Workflow。它把产品意图、任务边界、代码上下文、Worker 状态、验证结果和 Review 结论写入项目文件，减少主窗口压缩、多 Agent 交接和代码检索造成的开发漂移。
+ADworkflow 是一套面向 AI 辅助开发的 Artifact-driven Workflow。它把产品意图、任务边界、代码上下文、Worker 状态、验证结果和 Review 结论写入项目文件，减少主窗口压缩、多 Agent 交接和代码检索造成的开发漂移。
 
 > **平台状态**：当前仓库只在 Windows 上完成运行验证。Linux/macOS 已实现标准库 `flock` 锁路径，但本轮没有在这些平台或其他设备上执行运行测试。本文命令以 Windows PowerShell 为准。
 
