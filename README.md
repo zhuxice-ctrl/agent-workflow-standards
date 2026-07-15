@@ -140,6 +140,8 @@ artifact-driven-development
 npm install --prefix "$env:ADWORKFLO_SKILL_ROOT\providers\typescript" --ignore-scripts
 ```
 
+仓库不再提供复制式项目导入包。业务项目统一从已安装的全局 Skill 运行 `init_adworkflow.py`，生成项目本地 `.codex/`、`.adworkflow/` 和 `.codegraph/`。
+
 ## 快速开始
 
 ### 1. 准备文档并初始化
@@ -408,27 +410,6 @@ resume_manifest.json
 
 聊天摘要不作为事实来源。多次压缩后仍以磁盘 artifacts 和当前源码为准。
 
-## 项目导入包
-
-也可以把 `ADworkflo项目导入包/copy-to-project/` 中的内容复制到业务项目根目录。导入包包含示例产品文档，已有项目必须逐文件合并，不能覆盖真实 PRD、ARCH、权限和验证命令。
-
-常用包装器：
-
-```text
-init-adworkflow.ps1
-align-design.ps1
-layered-development.ps1
-build-codegraph.ps1
-prepare-context.ps1
-apply-context-expansion.ps1
-codegraph-post-edit.ps1
-orchestrator.ps1
-validate-adworkflow.ps1
-setup-l2-provider.ps1
-```
-
-包装器依赖已安装的全局 Skill。跨设备使用时显式设置 `ADWORKFLO_SKILL_ROOT` 或 `CODEX_HOME`。`prepare-context.ps1` 没有暴露 run 的四个输出参数，`orchestrator.ps1` 也没有暴露 `update-task`，多任务 run 使用前文的 Python 命令。
-
 ## 验证与故障处理
 
 验证业务项目：
@@ -451,7 +432,7 @@ git diff --check
 - 120 项自动化测试通过。
 - Windows subprocess 锁、reader/writer、四 builder、失败注入和进程终止恢复通过。
 - 400 模块轻量 fixture 包含 404 个文件和 4,404 个符号。
-- 本轮观测上限：建图 6.778 秒、slice 0.077 秒、preflight 1.168 秒、SQLite 3.695 MiB。
+- 本轮观测上限：建图 9.550 秒、slice 0.118 秒、preflight 1.349 秒、SQLite 3.695 MiB。
 - 真实仓库 L2 preflight accepted，post-edit impact passed。
 
 这些数字不是其他设备、生产 monorepo 或 Linux/macOS 的性能承诺。

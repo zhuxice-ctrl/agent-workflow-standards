@@ -1,6 +1,6 @@
 # 项目 Agent 头文件
 
-本文件只放所有任务都要遵守的最小纪律。复杂开发、多 Agent、review、验证、项目导入或流程改造任务，加载 `skills/artifact-driven-development/SKILL.md`。
+本文件只放所有任务都要遵守的最小纪律。复杂开发、多 Agent、review、验证、项目初始化或流程改造任务，加载 `skills/artifact-driven-development/SKILL.md`。
 
 ## 最小纪律
 
@@ -22,7 +22,7 @@
 2. 用户要求 ARCHwork 时，读取 ARCH 并更新 module skill 路由。
 3. 用户要求 TODOwork 时，读取 TODO 并生成 `.adworkflow/execution_plan.json`。
 4. 按 execution_plan 生成 `.adworkflow/task_specs/<task_id>.json`。
-5. 运行全局 `prepare_context.py` 或项目内 `prepare-context.ps1`。
+5. 运行全局 Skill 中的 `prepare_context.py`。
 6. 读取 `.adworkflow/context_manifest.json`。
 7. 按 `.adworkflow/module_skills.md` 判断是否加载模块 skill。
 8. 子 agent 实现、输出 diff/change summary + worker_state，并更新 artifacts。

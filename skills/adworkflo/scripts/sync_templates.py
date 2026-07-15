@@ -35,14 +35,9 @@ def canonical_dir(repo_root: Path) -> Path:
 
 
 def mirror_dirs(repo_root: Path) -> tuple[Path, ...]:
-    import_root = next(
-        path for path in repo_root.iterdir()
-        if path.is_dir() and path.name.startswith("ADworkflo")
-    )
     return (
         repo_root / "templates",
         repo_root / "skills" / "artifact-driven-development" / "templates",
-        import_root / "copy-to-project" / ".adworkflow",
     )
 
 

@@ -164,4 +164,4 @@ The feature is not complete if any of the following is true:
 - slices lack graph revision, hashes, confidence, or provenance
 - worker dispatch accepts stale or invalid context
 - verification checks only the original slice and not post-edit impact
-- the installed/imported skill lacks the provider runtime files, schemas, wrappers, or setup instructions
+- the installed Skill lacks the provider runtime files, schemas, initialization scripts, or setup instructions

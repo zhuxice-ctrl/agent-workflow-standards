@@ -1,6 +1,6 @@
 # Agent Header
 
-这是可复制到项目中的常驻头文件。保持短，只规定底线；完整 Artifact-driven Workflow 放在 skill 中按需加载。
+这是仓库内的执行纪律摘要。正式项目不手动复制本文件，统一由全局 ADworkflo Skill 的 `init_adworkflow.py` 生成 `.codex/AGENT_HEADER.md`；完整 Artifact-driven Workflow 按需从 Skill 加载。
 
 ## 最小执行纪律
 
@@ -20,7 +20,7 @@
 2. 用户要求 ARCHwork 时，读取 ARCH 并更新 module skill 路由。
 3. 用户要求 TODOwork 时，读取 TODO 并生成 `.adworkflow/execution_plan.json`。
 4. 按 execution_plan 生成 `.adworkflow/task_specs/<task_id>.json`。
-5. 运行全局 `prepare_context.py` 或项目内 `prepare-context.ps1`。
+5. 运行全局 Skill 中的 `prepare_context.py`。
 6. 读取 `.adworkflow/context_manifest.json`。
 7. 按 `.adworkflow/module_skills.md` 判断是否加载模块 skill。
 8. 子 agent 实现、输出 diff/change summary + worker_state，并更新 artifacts。
@@ -28,4 +28,4 @@
 
 ## 何时加载完整流程
 
-当任务涉及复杂开发、多 Agent、review、验证、项目导入、流程改造或不确定风险时，加载 `skills/artifact-driven-development/SKILL.md`。
+当任务涉及复杂开发、多 Agent、review、验证、项目初始化、流程改造或不确定风险时，加载 `skills/artifact-driven-development/SKILL.md`。

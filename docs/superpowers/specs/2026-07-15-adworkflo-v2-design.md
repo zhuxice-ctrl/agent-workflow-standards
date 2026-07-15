@@ -18,7 +18,7 @@
 
 ## Canonical Contracts
 
-`skills/adworkflo/templates/` 是 JSON 模板的唯一来源。`sync_templates.py` 将共享模板同步到根 `templates/`、协议 skill 模板和项目导入包。`--check` 在 CI 或本地验证副本没有漂移。
+`skills/adworkflo/templates/` 是 JSON 模板的唯一来源。`sync_templates.py` 只把共享模板同步到根 `templates/` 和协议 Skill 模板。业务项目统一通过已安装的全局 Skill 运行 `init_adworkflow.py` 生成本地 artifacts，不维护复制式导入包。`--check` 在 CI 或本地验证副本没有漂移。
 
 所有运行 artifact 拥有 schema 标识和可验证初始状态。尚未填写的 task template 使用 `configured: false`，`prepare_context` 必须拒绝执行，避免把占位内容当成真实任务。
 

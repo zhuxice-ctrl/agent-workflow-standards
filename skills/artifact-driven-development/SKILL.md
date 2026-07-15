@@ -1,6 +1,6 @@
 ---
 name: artifact-driven-development
-description: Artifact-driven development workflow for complex coding tasks, multi-agent orchestration, review, verification, project import packs, task_spec/context_manifest/worker_state/verification_result/review_findings artifacts. Use when a task needs structured planning, bounded context, codegraph retrieval, worker/reviewer handoff, or reproducible verification.
+description: Artifact-driven development workflow for complex coding tasks, multi-agent orchestration, review, verification, and task_spec/context_manifest/worker_state/verification_result/review_findings artifacts. Use when a task needs structured planning, bounded context, codegraph retrieval, worker/reviewer handoff, or reproducible verification.
 ---
 
 # Artifact-driven Development
@@ -19,7 +19,7 @@ Use this skill when any of these apply:
 - context discovery matters before editing
 - verification evidence must be preserved
 - reviewer or multi-agent handoff may be needed
-- a reusable project import pack is being created or updated
+- project-local ADworkflo artifacts need initialization or migration
 
 Default to `Solo Worker`. Escalate to `Worker + Reviewer` for public API, auth, permissions, billing, data, concurrency, cache, migration, state-machine, or large changes. Use `Fan-out Workers` only when subtasks are low-coupling and independently verifiable.
 
@@ -44,7 +44,7 @@ In a project using the global ADworkflo skill, the main window should:
 1. Use ARCHwork when the user wants ARCH-derived module skill routing.
 2. Use TODOwork when the user wants TODO-derived module execution and subagent orchestration.
 3. Write the active concrete task into `.adworkflow/task_spec.json` or `.adworkflow/task_specs/<task_id>.json`.
-4. Run `prepare_context.py --project <project>` or the local `prepare-context.ps1` wrapper.
+4. Run the global Skill command `prepare_context.py --project <project>`.
 5. Read `.adworkflow/context_manifest.json`.
 6. Check `.adworkflow/module_skills.md` for module-specific skill routing.
 7. Implement, verify, and update artifacts.
@@ -61,16 +61,12 @@ Load only the reference needed for the current step:
 - `references/multi-agent-orchestration.md`: mode selection, roles, handoff rules
 - `references/review-verification.md`: review levels, fix loop, completion evidence
 
-## Templates
+## Project Initialization
 
-Copy and fill templates from `templates/` when the target project does not already have artifact files:
+When the target project does not already have artifact files, initialize it through the installed global ADworkflo Skill:
 
-- `task_spec.json`
-- `execution_plan.json`
-- `context_raw.json`
-- `context_manifest.json`
-- `worker_state.json`
-- `verification_result.json`
-- `review_findings.json`
+```powershell
+py -3 "$env:ADWORKFLO_SKILL_ROOT\scripts\init_adworkflow.py" --project "<PROJECT_ROOT>"
+```
 
-Keep JSON keys and enum values unchanged. Translate or customize only human-readable string values.
+Do not copy `templates/` into the project manually. Templates are internal canonical contracts consumed by the initializer and synchronization checks. Fill the generated project-local artifacts while keeping JSON keys and enum values unchanged; customize only human-readable string values.

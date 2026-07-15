@@ -6,7 +6,7 @@
 
 **Architecture:** Keep `skills/adworkflo` as the executable engine and canonical template source. Add small focused Python CLIs for contract sync/validation, design alignment, and orchestration; strengthen existing analyzer/index/context scripts; generate all duplicated project templates from the canonical source.
 
-**Tech Stack:** Python 3.11 standard library, jsonschema 4.x for contract validation, PowerShell wrappers, JSON Schema 2020-12, unittest.
+**Tech Stack:** Python 3.11 standard library, jsonschema 4.x for contract validation, PowerShell installer, JSON Schema 2020-12, unittest.
 
 ---
 
@@ -104,14 +104,13 @@
 - Create: `tests/test_init_distribution.py`
 - Modify: `skills/adworkflo/scripts/init_adworkflow.py`
 - Modify: `install-adworkflow.ps1`
-- Modify: `ADworkflo项目导入包/copy-to-project/*.ps1`
 - Modify: `skills/adworkflo/templates/AGENT_HEADER.md.tpl`
 
 - [x] Test that initialization creates root `AGENTS.md` only when absent and never overwrites an existing one.
 - [x] Test that `--force` preserves user-owned configuration and `--force-user-config` explicitly replaces it.
 - [x] Initialize alignment, layer, interface and control artifacts without claiming they are configured.
-- [x] Run template sync and verify the import pack matches canonical JSON contracts.
-- [x] Add wrapper commands for validate, align design and orchestrator status.
+- [x] Run template sync and verify root/protocol mirrors match canonical JSON contracts.
+- [x] Verify the installed global Skill contains schemas and providers and can initialize and validate a project without the source repository.
 - [x] Run `py -3 -m unittest tests.test_init_distribution -v`; expect all tests to pass.
 
 ### Task 7: Documentation And End-To-End Verification

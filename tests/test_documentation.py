@@ -31,14 +31,27 @@ class DocumentationTests(unittest.TestCase):
     def test_real_example_exists(self) -> None:
         self.assertTrue((ROOT / "examples" / "small-project-test" / "README.md").exists())
 
-    def test_import_pack_documents_new_commands(self) -> None:
-        import_root = next(path for path in ROOT.iterdir() if path.is_dir() and path.name.startswith("ADworkflo"))
-        readme = (import_root / "copy-to-project" / "ADWORKFLOW_README.md").read_text(encoding="utf-8-sig")
-        self.assertIn("align-design.ps1", readme)
-        self.assertIn("validate-adworkflow.ps1", readme)
-        self.assertIn("orchestrator.ps1", readme)
-        self.assertIn("setup-l2-provider.ps1", readme)
-        self.assertIn("codegraph-post-edit.ps1", readme)
+    def test_unified_skill_initialization_is_the_only_project_bootstrap(self) -> None:
+        self.assertFalse((ROOT / "ADworkflo项目导入包").exists())
+        readme = (ROOT / "README.md").read_text(encoding="utf-8-sig")
+        self.assertIn("install-adworkflow.ps1", readme)
+        self.assertIn("init_adworkflow.py", readme)
+        bootstrap_docs = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in (
+                ROOT / "README.md",
+                ROOT / "skills" / "artifact-driven-development" / "SKILL.md",
+                ROOT / "docs" / "superpowers" / "plans" / "2026-07-15-l2-codegraph.md",
+                ROOT / "docs" / "superpowers" / "specs" / "2026-07-15-l2-codegraph-design.md",
+            )
+        )
+        for legacy_marker in (
+            "copy-to-project",
+            "Copy and fill templates",
+            "import-pack wrappers",
+            "installed/imported skill",
+        ):
+            self.assertNotIn(legacy_marker, bootstrap_docs)
 
     def test_l2_docs_do_not_describe_first_party_l2_as_external_only(self) -> None:
         paths = [

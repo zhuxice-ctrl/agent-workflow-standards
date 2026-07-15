@@ -6,7 +6,7 @@
 
 **Architecture:** Language providers emit normalized semantic records into an atomically rebuilt SQLite graph. A shared query/safety layer creates impact and slice evidence, while `prepare_context` and Orchestrator enforce freshness, confidence, expansion, post-edit impact, verification, and review gates.
 
-**Tech Stack:** Python 3 standard library (`ast`, `symtable`, `sqlite3`), TypeScript Compiler API on Node.js, JSON Schema, `unittest`, PowerShell wrappers.
+**Tech Stack:** Python 3 standard library (`ast`, `symtable`, `sqlite3`), TypeScript Compiler API on Node.js, JSON Schema, `unittest`, PowerShell installer.
 
 ---
 
@@ -122,7 +122,7 @@
 - Modify: `skills/artifact-driven-development/references/codegraph-retrieval.md`
 - Modify: `CODEGRAPH_RETRIEVAL_PROTOCOL.md`
 - Modify: `README.md`
-- Modify: initialization, installation, and import-pack wrappers
+- Modify: installed Skill initialization and installation entrypoints
 - Modify: `.adworkflow/worker_state.json`
 - Modify: `.adworkflow/verification_result.json`
 - Modify: `.adworkflow/review_findings.json`
