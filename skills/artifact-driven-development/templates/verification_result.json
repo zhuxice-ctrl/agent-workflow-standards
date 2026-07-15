@@ -1,9 +1,12 @@
 {
-  "task_id": "替换为短标识",
+  "schema": "ADworkflo.verification_result.v1",
+  "task_id": "unconfigured",
   "status": "not_run",
+  "source_revision": null,
   "commands": [],
+  "acceptance_criteria_coverage": [],
   "passed": [],
   "failed": [],
-  "not_run_reason": null,
+  "not_run_reason": "Task is not configured.",
   "residual_risk": []
 }

@@ -8,6 +8,7 @@ current LOC is not a reliable complexity signal.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -21,7 +22,6 @@ DEFAULT_DOC_NAMES = {
     "arch.md",
     "todo.md",
     "project.md",
-    "readme.md",
     "产品需求.md",
     "需求.md",
     "架构.md",
@@ -126,7 +126,7 @@ def iter_doc_candidates(project: Path) -> list[Path]:
         for name in files:
             if not name.lower().endswith(".md"):
                 continue
-            if name.lower() in DEFAULT_DOC_NAMES or depth <= 1:
+            if name.lower() in DEFAULT_DOC_NAMES:
                 result.append(root_path / name)
     return sorted(set(result))
 
@@ -142,9 +142,27 @@ def normalize(text: str) -> str:
 def find_patterns(text_lower: str, patterns: list[str]) -> list[str]:
     hits = []
     for pattern in patterns:
-        if pattern.lower() in text_lower:
+        normalized = pattern.lower()
+        if re.search(r"[a-z0-9]", normalized):
+            matched = re.search(
+                rf"(?<![a-z0-9_]){re.escape(normalized)}(?![a-z0-9_])",
+                text_lower,
+            )
+        else:
+            matched = normalized in text_lower
+        if matched:
             hits.append(pattern)
     return hits
+
+
+def count_pattern(text_lower: str, pattern: str) -> int:
+    normalized = pattern.lower()
+    if re.search(r"[a-z0-9]", normalized):
+        return len(re.findall(
+            rf"(?<![a-z0-9_]){re.escape(normalized)}(?![a-z0-9_])",
+            text_lower,
+        ))
+    return text_lower.count(normalized)
 
 
 def infer_count_score(text_lower: str) -> tuple[int, dict[str, int]]:
@@ -153,7 +171,7 @@ def infer_count_score(text_lower: str) -> tuple[int, dict[str, int]]:
     for key, patterns, medium_threshold, large_threshold, medium_score, large_score in COUNT_HINTS:
         count = 0
         for pattern in patterns:
-            count += text_lower.count(pattern.lower())
+            count += count_pattern(text_lower, pattern)
         details[key] = count
         if count >= large_threshold:
             score += large_score
@@ -167,7 +185,7 @@ def classify(score: int) -> tuple[str, str, str]:
         return "small", "architecture-first-l0-rg-manual-context", "solo"
     if score <= 14:
         return "medium", "architecture-first-l1-symbol-import-test-index", "solo-with-risk-review"
-    return "large", "architecture-first-l2-codegraph-after-code-exists", "orchestrator-with-workers-and-reviewers"
+    return "large", "architecture-first-l2-semantic-codegraph", "orchestrator-with-workers-and-reviewers"
 
 
 def unique(items: list[str]) -> list[str]:
@@ -186,17 +204,68 @@ def relative_doc_path(project: Path, doc: Path) -> str:
         return str(doc)
 
 
+MODULE_SECTION_NAMES = {
+    "module planning",
+    "module plan",
+    "modules",
+    "模块规划",
+    "模块计划",
+    "模块拆分",
+}
+
+
+def extract_declared_modules(arch_text: str) -> list[str]:
+    """Extract explicit modules from the ARCH module-planning section."""
+    lines = arch_text.splitlines()
+    in_section = False
+    heading_level = 0
+    modules: list[str] = []
+    for line in lines:
+        heading = re.match(r"^(#{1,6})\s+(.+?)\s*$", line)
+        if heading:
+            level = len(heading.group(1))
+            title = heading.group(2).strip().lower()
+            if title in MODULE_SECTION_NAMES:
+                in_section = True
+                heading_level = level
+                continue
+            if in_section and level <= heading_level:
+                break
+        if not in_section:
+            continue
+
+        candidate = ""
+        bullet = re.match(r"^\s*[-*+]\s+(.+?)\s*$", line)
+        if bullet:
+            candidate = bullet.group(1)
+        elif line.strip().startswith("|"):
+            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            if cells and not all(set(cell) <= {"-", ":"} for cell in cells):
+                if cells[0].lower() not in {"module", "模块"}:
+                    candidate = cells[0]
+        if candidate:
+            candidate = re.split(r"\s*[：:|]\s*", candidate, maxsplit=1)[0]
+            candidate = candidate.strip(" `*_")
+            if candidate:
+                modules.append(candidate)
+    return unique(modules)
+
+
 def build_architecture_manifest(project: Path, docs: list[Path] | None = None) -> dict[str, Any]:
     """Build architecture_manifest data from first-layer product docs."""
     doc_paths = resolve_docs(project, docs)
     combined_parts = []
     analysis_basis = []
+    source_hashes: dict[str, str] = {}
+    doc_texts: dict[str, str] = {}
     for doc in doc_paths:
         text = read_doc(doc)
         if not text.strip():
             continue
         rel = relative_doc_path(project, doc)
         analysis_basis.append({"path": rel, "chars": len(text)})
+        source_hashes[rel] = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        doc_texts[rel.lower()] = text
         combined_parts.append(f"\n\n# FILE: {rel}\n{text}")
 
     combined = "\n".join(combined_parts)
@@ -204,7 +273,7 @@ def build_architecture_manifest(project: Path, docs: list[Path] | None = None) -
 
     detected_signals: dict[str, Any] = {}
     score = 0
-    modules: list[str] = []
+    suggested_modules: list[str] = []
     agent_features: list[str] = []
     risk_areas: list[str] = []
 
@@ -218,7 +287,7 @@ def build_architecture_manifest(project: Path, docs: list[Path] | None = None) -
         }
         if detected:
             score += config["score"]
-            modules.extend(config.get("modules", []))
+            suggested_modules.extend(config.get("modules", []))
             agent_features.extend(config.get("agent_features", []))
             risk_areas.extend(config.get("risks", []))
 
@@ -230,6 +299,11 @@ def build_architecture_manifest(project: Path, docs: list[Path] | None = None) -
     }
 
     size, context_strategy, execution_mode = classify(score)
+    arch_text = "\n".join(
+        text for path, text in doc_texts.items()
+        if Path(path).name in {"arch.md", "架构.md"}
+    )
+    planned_modules = extract_declared_modules(arch_text)
 
     data_stores = []
     for store in ["sqlite", "mysql", "postgres", "postgresql", "mongodb", "redis", "vector_db", "向量库"]:
@@ -244,6 +318,13 @@ def build_architecture_manifest(project: Path, docs: list[Path] | None = None) -
     ]
     if size in {"medium", "large"} or risk_areas:
         recommended_artifacts.append("review_findings.json")
+    if size == "large":
+        recommended_artifacts.extend([
+            "semantic_slice.json",
+            "context_preflight.json",
+            "context_expansion_request.json",
+            "impact_report.json",
+        ])
     if size == "large":
         recommended_artifacts.extend(["risk_register", "module_map", "verification_plan"])
 
@@ -270,6 +351,7 @@ def build_architecture_manifest(project: Path, docs: list[Path] | None = None) -
 
     return {
         "schema": "ADworkflo.architecture_manifest.v1",
+        "configured": bool(analysis_basis),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "project_size": size,
         "classification_source": classification_source,
@@ -277,8 +359,10 @@ def build_architecture_manifest(project: Path, docs: list[Path] | None = None) -
         "context_strategy": context_strategy,
         "execution_mode": execution_mode,
         "analysis_basis": analysis_basis,
+        "source_hashes": source_hashes,
         "detected_signals": detected_signals,
-        "planned_modules": unique(modules),
+        "planned_modules": planned_modules,
+        "suggested_modules": unique(suggested_modules),
         "data_stores": unique(data_stores),
         "agent_features": unique(agent_features),
         "risk_areas": unique(risk_areas),
@@ -307,6 +391,7 @@ def merge_profile(project: Path, manifest: dict[str, Any]) -> bool:
         "classification_source": manifest["classification_source"],
         "expected_complexity_score": manifest["expected_complexity_score"],
         "planned_modules": manifest["planned_modules"],
+        "suggested_modules": manifest.get("suggested_modules", []),
         "risk_areas": manifest["risk_areas"],
         "agent_features": manifest["agent_features"],
     })

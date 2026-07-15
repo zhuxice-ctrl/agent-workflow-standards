@@ -12,9 +12,12 @@
 - `execution_mode`：默认 `solo_worker`，必要时升级。
 - `allowed_actions`：本轮允许的动作，例如 `read`、`edit`、`test`、`shell`、`network`。
 - `required_outputs`：本任务需要产出的 artifact 文件，例如 `context_raw.json`、`context_manifest.json`、`worker_state.json`、`verification_result.json`。
+- `task_type`：`code`、`product`、`architecture`、`workflow`、`docs` 或 `review`，用于选择上下文策略。
+- `do_not_touch`：具体文件、目录、模块或符号边界，不与语义 `non_goals` 混用。
+- `entrypoints` 和 `context_sources`：已知入口与必须纳入的文档/文件。
 
 ## 编写规则
 
 保持任务规格短而具体。不要把长背景、完整聊天记录或推理过程放进 `task_spec`。如果需求不完整，先补齐目标、非目标、验收标准和验证计划，再编辑文件。
 
-使用 `templates/task_spec.json` 作为起点。JSON 键名和枚举值必须保持不变。
+使用 `templates/task_spec.json` 作为起点，填写完成后把 `configured` 改为 `true`。未配置模板不可执行。

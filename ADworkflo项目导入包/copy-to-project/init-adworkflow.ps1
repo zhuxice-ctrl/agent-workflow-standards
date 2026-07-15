@@ -3,6 +3,7 @@ param(
   [ValidateSet("auto", "small", "medium", "large")]
   [string]$Mode = "auto",
   [switch]$Force,
+  [switch]$ForceUserConfig,
   [switch]$SkipDocAnalysis
 )
 
@@ -22,6 +23,9 @@ $script = Join-Path $SkillRoot "scripts\init_adworkflow.py"
 $argsList = @("-3", $script, "--project", $Project, "--mode", $Mode)
 if ($Force) {
   $argsList += "--force"
+}
+if ($ForceUserConfig) {
+  $argsList += "--force-user-config"
 }
 if ($SkipDocAnalysis) {
   $argsList += "--skip-doc-analysis"

@@ -1,9 +1,9 @@
 {
   "schema": "ADworkflo.context_raw.v1",
-  "task_id": "",
-  "source": "",
+  "task_id": "unconfigured",
+  "source": "not_prepared",
   "matched_files": [],
   "matched_symbols": [],
   "likely_tests": [],
-  "warnings": []
+  "warnings": ["Run prepare_context.py after configuring task_spec.json."]
 }

@@ -1,80 +1,50 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://local.agent-workflow-standards/schemas/verification_result.schema.json",
-  "title": "验证结果",
   "type": "object",
-  "required": [
-    "task_id",
-    "status",
-    "commands",
-    "passed",
-    "failed"
-  ],
+  "required": ["schema", "task_id", "status", "commands", "acceptance_criteria_coverage", "passed", "failed", "not_run_reason", "residual_risk"],
   "properties": {
-    "task_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "passed",
-        "failed",
-        "partial",
-        "not_run"
-      ]
-    },
+    "schema": {"const": "ADworkflo.verification_result.v1"},
+    "task_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["passed", "failed", "partial", "not_run"]},
+    "source_revision": {"type": ["string", "integer", "null"]},
     "commands": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "command",
-          "status"
-        ],
+        "required": ["command", "status", "summary"],
         "properties": {
-          "command": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "passed",
-              "failed",
-              "not_run"
-            ]
-          },
-          "summary": {
-            "type": "string"
-          }
+          "command": {"type": "string"},
+          "status": {"enum": ["passed", "failed", "not_run"]},
+          "summary": {"type": "string"},
+          "exit_code": {"type": ["integer", "null"]}
         },
         "additionalProperties": true
       }
     },
-    "passed": {
+    "acceptance_criteria_coverage": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "object",
+        "required": ["criterion", "status", "evidence"],
+        "properties": {
+          "criterion": {"type": "string"},
+          "status": {"enum": ["passed", "failed", "not_run"]},
+          "evidence": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": true
       }
     },
-    "failed": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "not_run_reason": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "residual_risk": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    }
+    "passed": {"type": "array", "items": {"type": "string"}},
+    "failed": {"type": "array", "items": {"type": "string"}},
+    "not_run_reason": {"type": ["string", "null"]},
+    "residual_risk": {"type": "array", "items": {"type": "string"}}
   },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "passed"}}},
+      "then": {"properties": {"source_revision": {"not": {"type": "null"}}, "not_run_reason": {"type": "null"}}}
+    }
+  ],
   "additionalProperties": true
 }

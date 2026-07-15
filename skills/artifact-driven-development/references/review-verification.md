@@ -2,6 +2,8 @@
 
 Review 必须基于证据且边界清晰。
 
+验证与 review 必须绑定同一 `source_revision` 或 patch hash。Reviewer 必须记录身份；需要独立审计时，reviewer 不得与 implementation owner 相同。
+
 Reviewer 不重新实现方案。Reviewer 检查 patch 是否满足任务契约，且没有引入不可接受的风险。
 
 ## 1. Review 级别
@@ -40,6 +42,8 @@ verification_result
 受影响的调用方/被调用方
 测试覆盖切片
 架构约束
+context_preflight.json
+修改后 impact_report.json
 ```
 
 ## 2. 风险升级触发条件
@@ -116,6 +120,9 @@ minimal local context
 3. 阻塞性 review findings 已解决。
 4. 剩余风险已记录。
 5. 已总结变更文件和行为变化。
+6. 验证覆盖已逐条映射到 task acceptance criteria。
+7. 分层开发还必须通过对应 layer audit 和跨层质量门禁。
+8. L2 任务的 context preflight 已接受，post-edit impact 已通过，且 Reviewer 审查的是实际波及范围而非仅原始切片。
 
 ## 6. 最终证据包
 

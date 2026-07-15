@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://local.agent-workflow-standards/schemas/layer_plan.schema.json",
+  "type": "object", "required": ["schema", "configured", "mode", "layers", "capability_slices", "cross_layer_gates"],
+  "properties": {
+    "schema": {"const": "ADworkflo.layer_plan.v1"}, "configured": {"type": "boolean"}, "mode": {"enum": ["standard", "layered"]},
+    "layers": {"type": "array", "items": {"$ref": "#/$defs/layer"}}, "capability_slices": {"type": "array"},
+    "cross_layer_gates": {"type": "array", "items": {"type": "object", "required": ["gate", "status", "evidence"], "properties": {"gate": {"type": "string"}, "status": {"enum": ["not_evaluated", "passed", "failed", "not_applicable"]}, "evidence": {"type": "array"}}, "additionalProperties": true}}
+  },
+  "$defs": {"layer": {"type": "object", "required": ["layer_id", "status", "not_applicable_reason", "final_goal", "scope", "non_completion_conditions", "exploration_and_audit", "task_ids"], "properties": {"layer_id": {"enum": ["presentation", "protocol", "data"]}, "status": {"enum": ["planned", "in_progress", "complete", "not_applicable"]}, "not_applicable_reason": {"type": ["string", "null"]}, "final_goal": {"type": "string"}, "scope": {"type": "object", "required": ["in_scope", "out_of_scope", "interfaces"], "properties": {"in_scope": {"type": "array"}, "out_of_scope": {"type": "array"}, "interfaces": {"type": "array"}}}, "non_completion_conditions": {"type": "array"}, "exploration_and_audit": {"type": "object", "required": ["read_first", "questions_to_resolve", "implementation_owner", "independent_auditor", "required_audit_evidence"], "properties": {"read_first": {"type": "array"}, "questions_to_resolve": {"type": "array"}, "implementation_owner": {"type": ["string", "null"]}, "independent_auditor": {"type": ["string", "null"]}, "required_audit_evidence": {"type": "array"}}}, "task_ids": {"type": "array"}}, "additionalProperties": true}},
+  "additionalProperties": true
+}

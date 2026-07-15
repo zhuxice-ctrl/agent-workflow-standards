@@ -1,5 +1,8 @@
 param(
-  [string]$Project = (Get-Location).Path
+  [string]$Project = (Get-Location).Path,
+  [ValidateSet("auto", "l1", "l2")]
+  [string]$Level = "auto",
+  [switch]$RequireTypeScript
 )
 
 $ErrorActionPreference = "Stop"
@@ -13,4 +16,8 @@ if ([string]::IsNullOrWhiteSpace($SkillRoot)) {
   }
 }
 
-py -3 (Join-Path $SkillRoot "scripts\build_codegraph.py") --project $Project
+$argsList = @("-3", (Join-Path $SkillRoot "scripts\build_codegraph.py"), "--project", $Project, "--level", $Level)
+if ($RequireTypeScript) {
+  $argsList += "--require-typescript"
+}
+& py @argsList

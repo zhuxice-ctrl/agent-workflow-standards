@@ -1,0 +1,10 @@
+{
+  "schema": "ADworkflo.resume_manifest.v1",
+  "run_id": "unconfigured",
+  "orchestrator_revision": 0,
+  "read_order": [],
+  "active_task_artifacts": [],
+  "source_hashes": {},
+  "source_drift": [],
+  "generated_at": null
+}

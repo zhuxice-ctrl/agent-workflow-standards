@@ -1,5 +1,6 @@
 {
   "project_size": "{{PROJECT_SIZE}}",
+  "level": "{{CODEGRAPH_LEVEL}}",
   "context_strategy": "{{CONTEXT_STRATEGY}}",
   "include": {{INCLUDE_DIRS_JSON}},
   "exclude": [
@@ -23,4 +24,3 @@
   ],
   "supported_queries": {{SUPPORTED_QUERIES_JSON}}
 }
-

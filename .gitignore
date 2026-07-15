@@ -36,3 +36,6 @@ temp/
 
 # ADworkflo generated indexes in real projects
 .codegraph/index.json
+.codegraph/*.sqlite
+.codegraph/*.lock
+.codegraph/snapshots/

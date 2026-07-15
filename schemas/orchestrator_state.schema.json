@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://local.agent-workflow-standards/schemas/orchestrator_state.schema.json",
+  "type": "object", "required": ["schema", "run_id", "revision", "status", "current_phase", "active_tasks", "completed_tasks", "blocked_tasks", "pending_questions", "confirmed_decisions", "forbidden_assumptions", "source_hashes", "artifact_pointers", "next_action", "updated_at"],
+  "properties": {"schema": {"const": "ADworkflo.orchestrator_state.v1"}, "run_id": {"type": "string"}, "revision": {"type": "integer", "minimum": 0}, "status": {"enum": ["not_started", "running", "blocked", "complete"]}, "current_phase": {"type": "string"}, "active_tasks": {"type": "array"}, "completed_tasks": {"type": "array"}, "blocked_tasks": {"type": "array"}, "pending_questions": {"type": "array"}, "confirmed_decisions": {"type": "array"}, "forbidden_assumptions": {"type": "array"}, "source_hashes": {"type": "object"}, "artifact_pointers": {"type": "object"}, "next_action": {"type": ["string", "null"]}, "updated_at": {"type": ["string", "null"]}},
+  "additionalProperties": true
+}

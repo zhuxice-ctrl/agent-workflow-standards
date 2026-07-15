@@ -14,7 +14,7 @@ Orchestrator 是状态机，不是自然语言转发器。
 - 维护 `.adworkflow/execution_plan.json`
 - 创建或批准 task specs
 - 分配 workers
-- 管理 artifact registry
+- 管理 run-scoped artifact registry、orchestrator revision 和 resume manifest
 - 控制权限
 - 路由 review findings
 - 决定是否完成
@@ -103,7 +103,7 @@ Codegraph service 提供定向上下文检索。
 
 用于 TODOwork 生成的模块批次，或明确低耦合的子任务。
 
-TODOwork 场景下不设置固定 worker 上限。worker 数量由当前 batch 的 TODO 模块任务决定。
+TODOwork 的逻辑任务数由模块拆分决定；运行时同时执行的 worker 数由 `worker_policy.max_parallel_workers`、平台容量和依赖共同限制。
 
 主窗口只根据 ARCH/TODO 中的模块拆分、依赖顺序和任务边界编排 batch；不要在执行窗口额外加入业务判断。业务、产品、合规、风格等争议留给 review/final reporting。
 
@@ -117,7 +117,7 @@ task_spec decides each worker boundary.
 
 Batch 规则：
 
-- 同一 batch 内的 tasks 可以并发分配子 agent。
+- 同一 batch 内只有通过依赖、容量和共享文件检查的 ready tasks 才能并发分配子 agent。
 - 后续 batch 只等待 ARCH/TODO 明确依赖的前置 batch。
 - 子 agent 只输出 diff/change summary、worker_state、必要时 verification_result。
 - 子 agent 遇到未定义细节，上报主窗口；主窗口按 PRD/ARCH/TODO 复核，仍不确定时询问用户并按 timeout fallback 留痕。
@@ -127,7 +127,7 @@ Batch 规则：
 ```mermaid
 flowchart TD
     A[ARCH/TODO] --> B[TODOwork 创建 execution_plan]
-    B --> C[Orchestrator 按 batch 创建 task_specs]
+    B --> C[Orchestrator 校验 DAG 并创建 run/task namespaces]
     C --> D[Locator 创建 context_manifest]
     D --> E[子 Workers 并发执行]
     E --> F[输出 diff + worker_state]
@@ -136,7 +136,11 @@ flowchart TD
     H --> I[Finalizer]
 ```
 
-## 5. Handoff 契约
+## 5. 主窗口恢复
+
+主窗口不得把压缩后的聊天摘要当成状态。恢复顺序由 `.adworkflow/runs/<run_id>/resume_manifest.json` 决定，至少重新读取 orchestrator state、execution plan、artifact registry 和活动任务 artifacts。状态更新必须携带 expected revision，防止旧窗口覆盖新状态。
+
+## 6. Handoff 契约
 
 每次 handoff 都应是 artifact handoff。
 
@@ -169,7 +173,7 @@ relevant local context
 latest verification_result
 ```
 
-## 6. 反模式
+## 7. 反模式
 
 避免：
 

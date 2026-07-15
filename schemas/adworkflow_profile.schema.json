@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/adworkflow_profile.schema.json",
+  "type": "object",
+  "required": ["schema", "project_size", "context_strategy", "source_file_count", "source_line_count", "languages", "include_dirs", "supported_queries", "classification_source", "execution_mode"],
+  "properties": {
+    "schema": {"const": "ADworkflo.profile.v1"},
+    "project_size": {"enum": ["small", "medium", "large"]},
+    "context_strategy": {"type": "string"},
+    "source_file_count": {"type": "integer", "minimum": 0},
+    "source_line_count": {"type": "integer", "minimum": 0},
+    "languages": {"type": "array"},
+    "include_dirs": {"type": "array"},
+    "supported_queries": {"type": "array"},
+    "classification_source": {"type": "string"},
+    "execution_mode": {"type": "string"}
+  },
+  "additionalProperties": true
+}

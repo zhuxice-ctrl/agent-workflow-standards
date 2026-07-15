@@ -1,58 +1,45 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://local.agent-workflow-standards/schemas/execution_plan.schema.json",
-  "title": "ADworkflo execution_plan",
   "type": "object",
-  "required": [
-    "schema",
-    "mvp_id",
-    "source_docs",
-    "worker_policy",
-    "batches"
-  ],
+  "required": ["schema", "configured", "mvp_id", "source_docs", "worker_policy", "batches", "integration_tasks", "open_questions"],
   "properties": {
-    "schema": {
-      "const": "ADworkflo.execution_plan.v1"
-    },
-    "mvp_id": {
-      "type": "string"
-    },
-    "source_docs": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
+    "schema": {"const": "ADworkflo.execution_plan.v2"},
+    "configured": {"type": "boolean"},
+    "mvp_id": {"type": "string", "minLength": 1},
+    "source_docs": {"type": "array", "items": {"type": "string"}},
     "worker_policy": {
       "type": "object",
+      "required": ["max_parallel_workers", "batching_rule", "handoff_outputs"],
+      "properties": {
+        "max_parallel_workers": {"type": "integer", "minimum": 1},
+        "batching_rule": {"type": "string", "minLength": 1},
+        "handoff_outputs": {"type": "array", "items": {"type": "string"}}
+      },
       "additionalProperties": true
     },
     "batches": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "batch_id",
-          "parallel",
-          "tasks"
-        ],
+        "required": ["batch_id", "parallel", "depends_on", "tasks"],
         "properties": {
-          "batch_id": {
-            "type": "string"
-          },
-          "parallel": {
-            "type": "boolean"
-          },
-          "depends_on": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
+          "batch_id": {"type": "string", "minLength": 1},
+          "parallel": {"type": "boolean"},
+          "depends_on": {"type": "array", "items": {"type": "string"}},
           "tasks": {
             "type": "array",
             "items": {
               "type": "object",
+              "required": ["task_id", "module", "goal", "depends_on", "task_spec_path", "expected_outputs"],
+              "properties": {
+                "task_id": {"type": "string", "minLength": 1},
+                "module": {"type": "string", "minLength": 1},
+                "goal": {"type": "string", "minLength": 1},
+                "depends_on": {"type": "array", "items": {"type": "string"}},
+                "task_spec_path": {"type": "string", "minLength": 1},
+                "expected_outputs": {"type": "array", "items": {"type": "string"}}
+              },
               "additionalProperties": true
             }
           }
@@ -60,12 +47,8 @@
         "additionalProperties": true
       }
     },
-    "integration_tasks": {
-      "type": "array"
-    },
-    "open_questions": {
-      "type": "array"
-    }
+    "integration_tasks": {"type": "array"},
+    "open_questions": {"type": "array"}
   },
   "additionalProperties": true
 }

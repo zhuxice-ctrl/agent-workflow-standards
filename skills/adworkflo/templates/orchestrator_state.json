@@ -1,0 +1,17 @@
+{
+  "schema": "ADworkflo.orchestrator_state.v1",
+  "run_id": "unconfigured",
+  "revision": 0,
+  "status": "not_started",
+  "current_phase": "planning",
+  "active_tasks": [],
+  "completed_tasks": [],
+  "blocked_tasks": [],
+  "pending_questions": [],
+  "confirmed_decisions": [],
+  "forbidden_assumptions": [],
+  "source_hashes": {},
+  "artifact_pointers": {},
+  "next_action": null,
+  "updated_at": null
+}

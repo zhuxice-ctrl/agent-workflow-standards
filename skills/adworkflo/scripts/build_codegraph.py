@@ -16,9 +16,11 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import json
 import os
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
@@ -75,6 +77,10 @@ def read_text(path: Path) -> str:
 
 def count_lines(text: str) -> int:
     return 0 if not text else text.count("\n") + 1
+
+
+def sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def is_test_file(path: Path) -> bool:
@@ -183,19 +189,8 @@ def extract_for_file(path: Path, language: str, text: str) -> tuple[list[dict], 
     return [], []
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Build a lightweight ADworkflo codegraph index.")
-    parser.add_argument("--project", required=True, help="Project root path.")
-    parser.add_argument("--out", default=None, help="Output index path. Defaults to .codegraph/index.json.")
-    args = parser.parse_args()
-
-    project = Path(args.project).resolve()
-    if not project.is_dir():
-        raise SystemExit(f"Project path is not a directory: {project}")
-
-    out = Path(args.out).resolve() if args.out else project / ".codegraph" / "index.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-
+def build_index(project: Path) -> dict:
+    project = project.resolve()
     files = []
     symbols = []
     imports = []
@@ -205,11 +200,12 @@ def main() -> int:
         text = read_text(path)
         language = SOURCE_EXTENSIONS[path.suffix.lower()]
         file_rel = rel(project, path)
-        loc = count_lines(text)
         file_record = {
             "path": file_rel,
             "language": language,
-            "loc": loc,
+            "loc": count_lines(text),
+            "sha256": sha256_text(text),
+            "mtime_ns": path.stat().st_mtime_ns,
             "is_test": is_test_file(path),
         }
         files.append(file_record)
@@ -223,10 +219,15 @@ def main() -> int:
         for imported in file_imports:
             imports.append({"file": file_rel, "imports": imported})
 
-    index = {
+    return {
         "schema": "ADworkflo.codegraph.v1",
+        "provider": "lightweight-l1",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "project": str(project),
+        "limitations": [
+            "No semantic reference or call edges.",
+            "Non-Python/JavaScript/TypeScript/Go symbol extraction is file-level only.",
+        ],
         "summary": {
             "file_count": len(files),
             "source_line_count": sum(f["loc"] for f in files),
@@ -240,7 +241,75 @@ def main() -> int:
         "imports": imports,
         "tests": tests,
     }
-    out.write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def index_is_stale(project: Path, index: dict) -> bool:
+    indexed = {record.get("path"): record.get("sha256") for record in index.get("files", [])}
+    current: dict[str, str] = {}
+    for path in iter_source_files(project.resolve()):
+        text = read_text(path)
+        current[rel(project, path)] = sha256_text(text)
+    return indexed != current
+
+
+def write_index(path: Path, index: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def configured_level(project: Path) -> str:
+    config_path = project / ".codegraph" / "config.json"
+    if config_path.exists():
+        try:
+            config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        except (OSError, json.JSONDecodeError):
+            return "l1"
+        if config.get("level") in {"l1", "l2"}:
+            return config["level"]
+        if str(config.get("context_strategy", "")).startswith("L2"):
+            return "l2"
+    return "l1"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Build an ADworkflo L1 index or L2 semantic graph.")
+    parser.add_argument("--project", required=True, help="Project root path.")
+    parser.add_argument("--out", default=None, help="Output index path. Defaults to .codegraph/index.json.")
+    parser.add_argument("--level", choices=["auto", "l1", "l2"], default="auto")
+    parser.add_argument("--require-typescript", action="store_true")
+    args = parser.parse_args()
+
+    project = Path(args.project).resolve()
+    if not project.is_dir():
+        raise SystemExit(f"Project path is not a directory: {project}")
+
+    level = configured_level(project) if args.level == "auto" else args.level
+    if level == "l2":
+        from build_codegraph_l2 import build as build_l2
+        from l2_codegraph.database import graph_error_payload
+        out = Path(args.out).resolve() if args.out else project / ".codegraph" / "l2.sqlite"
+        try:
+            result = build_l2(
+                project,
+                out,
+                include_typescript=True,
+                require_typescript=args.require_typescript,
+            )
+        except Exception as error:
+            payload = graph_error_payload(error)
+            if payload is None:
+                raise
+            print(json.dumps(payload, ensure_ascii=False), file=sys.stderr)
+            return 3 if payload["retryable"] else 2
+        print(f"Wrote L2 semantic graph: {out}")
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+
+    out = Path(args.out).resolve() if args.out else project / ".codegraph" / "index.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+
+    index = build_index(project)
+    write_index(out, index)
     print(f"Wrote codegraph index: {out}")
     print(json.dumps(index["summary"], ensure_ascii=False, indent=2))
     return 0

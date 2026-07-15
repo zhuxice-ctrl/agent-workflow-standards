@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://local.agent-workflow-standards/schemas/resume_manifest.schema.json",
+  "type": "object", "required": ["schema", "run_id", "orchestrator_revision", "read_order", "active_task_artifacts", "source_hashes", "source_drift", "generated_at"],
+  "properties": {"schema": {"const": "ADworkflo.resume_manifest.v1"}, "run_id": {"type": "string"}, "orchestrator_revision": {"type": "integer"}, "read_order": {"type": "array", "items": {"type": "string"}}, "active_task_artifacts": {"type": "array", "items": {"type": "string"}}, "source_hashes": {"type": "object"}, "source_drift": {"type": "array", "items": {"type": "string"}}, "generated_at": {"type": ["string", "null"]}}, "additionalProperties": true
+}

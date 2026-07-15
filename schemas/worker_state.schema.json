@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/worker_state.schema.json",
+  "type": "object",
+  "required": ["schema", "task_id", "status", "revision", "done", "changed_files", "must_keep_context", "discarded_context", "remaining_risks", "clarification_events", "timeout_fallbacks"],
+  "properties": {
+    "schema": {"const": "ADworkflo.worker_state.v1"},
+    "task_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["not_started", "in_progress", "blocked", "implementation_complete", "verified"]},
+    "revision": {"type": "integer", "minimum": 0},
+    "done": {"type": "array"}, "changed_files": {"type": "array"},
+    "current_problem": {"type": ["string", "null"]}, "next_action": {"type": ["string", "null"]},
+    "must_keep_context": {"type": "array"}, "discarded_context": {"type": "array"}, "remaining_risks": {"type": "array"},
+    "clarification_events": {"type": "array"},
+    "timeout_fallbacks": {"type": "array"},
+    "context_expansion_history": {"type": "array"}
+  },
+  "additionalProperties": true
+}

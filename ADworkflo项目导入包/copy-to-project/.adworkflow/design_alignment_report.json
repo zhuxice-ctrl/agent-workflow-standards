@@ -1,0 +1,17 @@
+{
+  "schema": "ADworkflo.design_alignment_report.v1",
+  "configured": false,
+  "created_at": null,
+  "source_hashes": {},
+  "requirements": [],
+  "architecture_scope_additions": [],
+  "semantic_review": {
+    "required": true,
+    "status": "pending",
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": []
+  },
+  "gate_status": "blocked",
+  "blocking_reasons": ["Run design_alignment.py after PRD.md and ARCH.md are ready."]
+}

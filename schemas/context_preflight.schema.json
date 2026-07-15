@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/context_preflight.schema.json",
+  "type": "object",
+  "required": ["schema", "task_id", "status", "graph_revision", "slice_revision", "confidence", "confidence_threshold", "freshness", "provider_capabilities", "missing_capabilities", "invalid_reasons", "expansion_reasons", "required_actions", "critical_unresolved_edges", "expansion_history"],
+  "properties": {
+    "schema": {"const": "ADworkflo.context_preflight.v1"},
+    "task_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["not_prepared", "accepted", "needs_expansion", "invalid"]},
+    "graph_revision": {"type": ["string", "null"]},
+    "slice_revision": {"type": ["string", "null"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "confidence_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+    "freshness": {"type": "object"},
+    "provider_capabilities": {"type": "array"},
+    "missing_capabilities": {"type": "object"},
+    "invalid_reasons": {"type": "array", "items": {"type": "string"}},
+    "expansion_reasons": {"type": "array", "items": {"type": "string"}},
+    "required_actions": {"type": "array", "items": {"type": "string"}},
+    "critical_unresolved_edges": {"type": "array"},
+    "expansion_history": {"type": "array"}
+  },
+  "additionalProperties": true
+}

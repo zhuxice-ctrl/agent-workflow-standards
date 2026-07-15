@@ -1,6 +1,6 @@
 ---
 name: adworkflo
-description: Use when starting or managing an AI-assisted software development task with Artifact-driven Workflow, product-doc-based architecture analysis, project-local agent headers, task specs, context manifests, worker state, verification evidence, review findings, or codegraph retrieval. Also use when the user asks to initialize ADworkflo in a project, automate the engineering execution layer after PRD/ARCH/TODO, classify project size, or decide whether to use rg, symbol index, or full codegraph.
+description: Use when starting or managing an AI-assisted software development task with Artifact-driven Workflow, product-doc alignment, layered development, project-local agent headers, task specs, context manifests, resumable orchestrator state, verification evidence, review findings, or codegraph retrieval.
 ---
 
 # ADworkflo
@@ -18,10 +18,12 @@ Use this skill when the task involves:
 - Initializing an AI development workflow in a repo.
 - Turning product requirements into engineering execution.
 - Creating `task_spec`, `context_manifest`, `worker_state`, `verification_result`, or `review_findings`.
-- Deciding whether a project needs `rg`, a symbol/import/test index, or a full codegraph.
+- Deciding whether a project needs `rg`, the bundled L1 index, or the verified first-party L2 semantic graph.
 - Coordinating worker/reviewer/finalizer agents.
 
 Do not force the full workflow on tiny edits. For trivial changes, keep the process lightweight and still verify the result.
+
+When the user explicitly asks for layered development on a complex product, load `references/layered-development.md`, generate `.adworkflow/layer_plan.json`, and require the three layer contracts plus cross-layer gates before module execution.
 
 ## Two-Layer Model
 
@@ -46,11 +48,18 @@ Each project gets only local facts and minimum execution discipline:
   ADWORKFLOW_PROFILE.json
   PROJECT.md
   architecture_manifest.json
+  design_alignment_report.json
+  layer_plan.json
+  interface_contracts.json
   execution_plan.json
   task_spec.json
   task_specs/
   context_raw.json
   context_manifest.json
+  semantic_slice.json
+  context_preflight.json
+  context_expansion_request.json
+  impact_report.json
   worker_state.json
   verification_result.json
   review_findings.json
@@ -60,8 +69,11 @@ Each project gets only local facts and minimum execution discipline:
   module_skills.md
   final_summary.template.md
   artifacts/
+  runs/
 .codegraph/
   config.json
+  l2.sqlite
+  snapshots/
 ```
 
 Global skill is the method. Project-local files are the current project's operating context.
@@ -80,6 +92,8 @@ Recommended order for new projects:
 User writes PRD / ARCH / TODO / PROJECT
 -> init_adworkflow.py auto-analyzes first-layer docs
 -> .adworkflow/architecture_manifest.json
+-> design_alignment.py creates the structural PRD-ARCH gate
+-> independent semantic review approves or blocks the gate
 -> .adworkflow/ADWORKFLOW_PROFILE.json
 -> task_spec + context_manifest
 -> worker implementation
@@ -98,7 +112,7 @@ py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\init_adworkflow.py --project <PROJECT_PA
 
 The script does not overwrite existing files unless `--force` is used.
 
-By default, initialization analyzes first-layer Markdown docs such as `PRD.md`, `ARCH.md`, `TODO.md`, `PROJECT.md`, Chinese equivalents, and shallow project docs. If product docs exist, their expected architecture decides `small`, `medium`, or `large`. Source file count and LOC are only a fallback for existing projects or projects without product docs.
+By default, initialization analyzes only named first-layer docs such as `PRD.md`, `ARCH.md`, `TODO.md`, `PROJECT.md`, and Chinese equivalents. Pass explicit `--docs` paths for custom names; unrelated Markdown and README files are not implicit architecture inputs. If product docs exist, their expected architecture decides `small`, `medium`, or `large`.
 
 ## Analyze Product Docs
 
@@ -122,18 +136,20 @@ This writes:
 
 Use `architecture_manifest.json` to generate the first `task_spec` and `context_manifest` before implementation files exist.
 
-## Build Lightweight Codegraph
+## Build Codegraph
 
 After implementation files exist, build a project-local index:
 
 ```powershell
 py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\build_codegraph.py --project <PROJECT_PATH>
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\build_codegraph.py --project <PROJECT_PATH> --level l2
 ```
 
 This writes:
 
 ```text
 <PROJECT_PATH>\.codegraph\index.json
+<PROJECT_PATH>\.codegraph\l2.sqlite
 ```
 
 V1 index contains:
@@ -145,7 +161,13 @@ V1 index contains:
 - simple imports
 - likely test files
 
-It is enough for small/medium project context routing. Large projects may still need a stronger language-server or tree-sitter based codegraph later.
+L1 is the portable file/symbol/import/test index. L2 uses the first-party Python `ast`/`symtable` provider and, when installed, the TypeScript Compiler API provider. Install the TS/JS runtime once per installed skill:
+
+```powershell
+npm install --prefix $env:ADWORKFLO_SKILL_ROOT\providers\typescript --ignore-scripts
+```
+
+Never claim L2 for a language whose provider does not pass the capability probe.
 
 ## Query Codegraph
 
@@ -153,6 +175,9 @@ It is enough for small/medium project context routing. Large projects may still 
 py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT_PATH> summary
 py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT_PATH> find-definition --symbol <SYMBOL>
 py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT_PATH> tests-for --target <FILE_OR_SYMBOL>
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT_PATH> callers --symbol <QUALIFIED_SYMBOL>
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT_PATH> impact --target <SYMBOL_OR_FILE>
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT_PATH> slice --entrypoint <QUALIFIED_SYMBOL> --out <SLICE_PATH>
 ```
 
 Generate an initial context manifest from a task spec:
@@ -180,14 +205,19 @@ Default outputs:
 ```text
 <PROJECT_PATH>\.adworkflow\context_raw.json
 <PROJECT_PATH>\.adworkflow\context_manifest.json
+<PROJECT_PATH>\.adworkflow\semantic_slice.json
+<PROJECT_PATH>\.adworkflow\context_preflight.json
 ```
 
 Use it after the orchestrator has written `task_spec.json`.
 
 Behavior:
 
-- If source files exist and `.codegraph/index.json` is missing, it builds the lightweight codegraph first.
-- If codegraph has usable source data, it derives `context_raw.json` and `context_manifest.json` from code matches.
+- L0/L1 tasks build or refresh `.codegraph/index.json` and create bounded context as before.
+- Configured L2 tasks build or refresh `.codegraph/l2.sqlite`, then create the slice and preflight artifacts.
+- `needs_expansion` blocks dispatch until `apply_context_expansion.py` updates the slice, preflight, manifest, and worker history.
+- `invalid` requires a graph rebuild or an unambiguous entrypoint; it cannot be waived by chat text.
+- After edits, `codegraph_post_edit.py` rebuilds the graph and writes `impact_report.json`.
 - If code does not exist yet, it falls back to `architecture_manifest.json`, `PRD.md`, `ARCH.md`, `TODO.md`, `PROJECT.md`, and project-local config files.
 
 This is the recommended answer to "task_spec has been generated; how does graphcode get called?"
@@ -204,6 +234,7 @@ The user still owns product design docs. The automation layer owns engineering e
 - `.adworkflow/review_checklist.md`: reviewer inputs and risk checks.
 - `.adworkflow/final_summary.template.md`: final output shape for important tasks.
 - `.adworkflow/artifacts/<task_id>/`: optional archive for completed task artifacts.
+- `.adworkflow/runs/<run_id>/`: active multi-task control state and isolated task artifacts.
 
 Do not turn every module into a skill. Create module skills only when a module has repeatable rules, special domain constraints, strict UI/design conventions, non-obvious verification, or a recurring implementation pattern.
 
@@ -254,13 +285,15 @@ Typical signs:
 
 Goal: stop workers from rediscovering definitions, imports, and relevant tests from scratch.
 
-### Large Project: L2 Codegraph
+### Large Project: Verified L2 Semantic Graph
 
-Use:
+The bundled engine uses:
 
 ```text
-definition/reference/caller/callee/tests_for/impacted_files/get_slice
+Python ast/symtable + TypeScript Compiler API providers + revisioned SQLite graph
 ```
+
+Use definition/reference/caller/callee/impact/slice queries only for languages listed by the capability probe. Unsupported languages remain L1 and must be recorded as a context boundary.
 
 Typical signs:
 
@@ -278,12 +311,13 @@ Product docs prepared by user
 -> ARCHwork reads ARCH-declared module skill plan
 -> TODOwork creates execution_plan from TODO module checklist
 -> Orchestrator creates task_specs from execution_plan
--> prepare_context creates context_raw and context_manifest
+-> prepare_context creates context_raw/context_manifest and, for L2, semantic_slice/context_preflight
 -> Worker implements scoped task
 -> Build/update codegraph as code appears
 -> Worker outputs patch + worker_state
--> Verifier records verification_result
--> Reviewer checks diff when risk requires it
+-> Rebuild graph and generate post-edit impact_report
+-> Verifier records verification_result and checks unexpected impact
+-> Reviewer checks diff, context_preflight, and impact_report when risk requires it
 -> Finalizer summarizes completed work and residual risk
 ```
 
@@ -314,7 +348,7 @@ It should not:
 Worker receives:
 
 ```text
-task_spec + context_manifest
+task_spec + context_manifest + accepted context_preflight when L2 is active
 ```
 
 Worker outputs:
@@ -326,6 +360,8 @@ verification_result when it runs checks
 ```
 
 Worker should read only the needed context first. It can request more context with a specific reason.
+
+For L2, the worker writes a pending `context_expansion_request.json` instead of guessing across an unresolved or truncated boundary. Apply it with `apply_context_expansion.py`; the expansion is recorded in `semantic_slice.expansion_history` and `worker_state.context_expansion_history`.
 
 When ARCH/TODO details are missing, the worker should stop expanding, report the question to the main window, wait for a PRD/ARCH/TODO-backed decision or configured timeout fallback, then record the event in `worker_state.clarification_events` and `worker_state.timeout_fallbacks`. The worker records facts and decisions; review judgments belong to reviewer/final reporting artifacts.
 
@@ -347,6 +383,8 @@ Reviewer checks:
 
 Reviewer should not become a second developer unless explicitly asked.
 
+For L2 tasks, reviewer input must also include `context_preflight.json` and the post-edit `impact_report.json`. Review is based on observed impact, not only the original slice.
+
 ## Codegraph Retrieval Rule
 
 Use the lightest sufficient context strategy:
@@ -354,7 +392,7 @@ Use the lightest sufficient context strategy:
 ```text
 small: rg + manual manifest
 medium: symbol/import/test index
-large: full codegraph
+large: verified first-party L2 for Python/TS/JS, truthful L1 fallback for unsupported languages
 ```
 
 For detailed codegraph design, read `references/codegraph-design.md`.

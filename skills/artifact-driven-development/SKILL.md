@@ -27,12 +27,13 @@ Default to `Solo Worker`. Escalate to `Worker + Reviewer` for public API, auth, 
 
 1. Create or confirm `task_spec` before editing.
 2. For ARCH/TODO-driven MVP work, create or confirm `execution_plan` before spawning module workers.
-3. Build `context_raw` and `context_manifest` from codegraph, architecture docs, or targeted search before reading large surfaces.
-4. Select execution mode, defaulting to `solo_worker` for one task or TODOwork batches for module execution.
-5. Implement the change and maintain `worker_state`.
-6. Run deterministic verification and record `verification_result`.
-7. If review is required, provide `task_spec`, `patch.diff`, and `verification_result` first.
-8. Finish with changed files, behavior summary, verification result, remaining risks, and follow-ups.
+3. For multi-task work, start a run and use its orchestrator state, resume manifest, and task namespaces.
+4. Build `context_raw` and `context_manifest` from codegraph, architecture docs, or targeted search before reading large surfaces.
+5. Select execution mode, defaulting to `solo_worker` for one task or capacity-aware TODOwork batches.
+6. Implement the change and maintain task-scoped `worker_state`.
+7. Run deterministic verification and record `verification_result`.
+8. If review is required, provide `task_spec`, `patch.diff`, and `verification_result` first.
+9. Finish with changed files, behavior summary, verification result, remaining risks, and follow-ups.
 
 Do not use full conversation history as handoff material. Exchange artifacts: `execution_plan`, `task_spec`, `context_raw`, `context_manifest`, `worker_state`, `patch.diff`, `review_findings`, and `verification_result`.
 

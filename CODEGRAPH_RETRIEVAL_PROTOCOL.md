@@ -1,129 +1,44 @@
 # Codegraph 检索协议
 
-Codegraph 检索用于减少不必要的上下文。
+ADworkflo 内置两套真实能力：便携式 `lightweight-l1`，以及面向 Python、TypeScript、JavaScript 的 revisioned L2 semantic graph。其他语言只有在 provider capability probe 通过后才能声明 L2。
 
-Agent 在读取大面积代码前，应使用图来定位真正相关的内容。
+## 检索顺序
 
-## 1. 工具契约
+1. 从 `task_spec.entrypoints` 解析唯一 stable ID 或 qualified symbol。
+2. 查询 definition、references、callers、callees、imports 和 tests。
+3. 生成带预算的 `semantic_slice.json` 与预测影响范围。
+4. 运行 `context_preflight`。
+5. `accepted` 才进入开发；`needs_expansion` 写定向扩展请求；`invalid` 重建图或修正入口。
+6. 修改后重建图，生成 `impact_report.json`，Reviewer 审查实际波及范围。
 
-推荐工具接口：
+## 查询命令
 
-```text
-find_definition(symbol)
-find_references(symbol)
-callers(function)
-callees(function)
-impacted_files(file)
-tests_for(symbol_or_file)
-get_slice(entrypoint, depth=2)
-summarize_file(file, budget=800)
+```powershell
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT> capabilities
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT> find-references --symbol <SYMBOL>
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT> callers --symbol <SYMBOL>
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT> callees --symbol <SYMBOL>
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT> impact --target <SYMBOL_OR_FILE> --depth 3 --budget 200
+py -3 $env:ADWORKFLO_SKILL_ROOT\scripts\query_codegraph.py --project <PROJECT> slice --entrypoint <SYMBOL> --depth 2 --budget 100
 ```
 
-## 2. 检索顺序
+短名有歧义时只返回 candidates，不猜定义。查询结果必须携带 graph revision、provider provenance、未解析边和截断边界。
 
-除非任务给出更合适的路径，否则按以下顺序执行：
+## 防漂移门禁
 
-1. 识别入口符号、文件或面向用户的行为。
-2. 查找定义。
-3. 查找引用和调用方。
-4. 查找受影响的测试。
-5. 读取定向代码切片。
-6. 仅在需要时扩展到被调用方或受影响文件。
+`semantic_slice` 不是允许读取的白名单。Agent 发现以下任一情况必须扩展或回到源码定向检索：
 
-## 3. Context Raw 与 Context Manifest
+- 关键动态调用或反射边未解析
+- depth/item budget 截断
+- 入口缺失或歧义
+- 文件哈希或 graph revision 变化
+- 当前语言没有通过 L2 capability probe
+- 实际修改文件超出预测范围
 
-Locator 应在实现前先保留原始检索证据：
+`apply_context_expansion.py` 会同时更新 slice、preflight、manifest 和 worker history。`codegraph_post_edit.py` 会自动重建图，对比 symbols/calls/references/imports，并在 unexpected impact 或新增 critical unresolved edge 时失败。
 
-```json
-{
-  "schema": "ADworkflo.context_raw.v1",
-  "task_id": "task-id",
-  "source": "codegraph-index",
-  "matched_files": [],
-  "matched_symbols": [],
-  "likely_tests": [],
-  "warnings": []
-}
-```
+## 预算与源码读取
 
-再压缩成 worker-facing manifest：
+默认 slice depth 为 2、item budget 为 100、confidence threshold 为 0.80。预算是防止上下文爆炸的边界，不是证明范围完整的依据。
 
-```json
-{
-  "task_id": "task-id",
-  "context_level": "L1-index",
-  "read_first": [],
-  "relevant_symbols": [],
-  "entrypoints": [],
-  "likely_tests": [],
-  "do_not_touch": [],
-  "open_questions": []
-}
-```
-
-## 4. 预算规则
-
-推荐限制：
-
-```text
-initial_manifest: 1000-2000 tokens
-single_tool_response: 300-800 tokens
-max_queries_per_round: 3-5
-slice_depth_default: 1-2
-```
-
-如果结果超出预算：
-
-- 降低深度
-- 摘要化
-- 对符号排序
-- 按模块拆分
-- 请求更窄的切片
-
-## 5. 何时读取完整文件
-
-在以下情况下允许读取完整文件：
-
-- 文件较小
-- 文件是配置文件
-- 文件是直接实现目标
-- 读取切片的成本高于读取整个文件
-
-在以下情况下应避免读取完整文件：
-
-- 文件较大
-- 文件包含多个无关职责
-- 只有一个符号相关
-- 任务只需要调用方/被调用方上下文
-
-## 6. 影响升级
-
-当 patch 触及以下内容时，请求影响分析：
-
-- public API
-- auth 或 permissions
-- payment 或 billing
-- data migrations
-- cache behavior
-- concurrency
-- global types
-- state machines
-- serialization/deserialization
-
-## 7. 输出风格
-
-Codegraph 响应应紧凑且结构化。
-
-推荐：
-
-```json
-{
-  "symbol": "SessionStore.save",
-  "definition": "src/auth/session.ts:44",
-  "callers": ["src/auth/refresh.ts:88"],
-  "tests": ["test/auth/session.test.ts"],
-  "notes": ["expiresAt 需要 epoch 毫秒"]
-}
-```
-
-除非明确要求，否则避免冗长的叙事性解释。
+切片只提供定位范围。直接目标文件较小、配置文件、序列化协议、全局类型或切片存在不确定边时，应读取完整源码并把扩展原因记录到 artifacts。

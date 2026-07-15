@@ -1,12 +1,16 @@
 {
-  "task_id": "",
+  "schema": "ADworkflo.worker_state.v1",
+  "task_id": "unconfigured",
   "status": "not_started",
+  "revision": 0,
   "done": [],
   "changed_files": [],
-  "current_problem": "",
-  "next_action": "",
+  "current_problem": null,
+  "next_action": null,
   "must_keep_context": [],
+  "discarded_context": [],
   "remaining_risks": [],
   "clarification_events": [],
-  "timeout_fallbacks": []
+  "timeout_fallbacks": [],
+  "context_expansion_history": []
 }

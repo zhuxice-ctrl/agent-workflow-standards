@@ -23,7 +23,7 @@
 - `relevant_symbols`：相关符号。
 - `entrypoints`：入口点、命令、页面、API 或业务流程。
 - `likely_tests`：可能需要运行或补充的测试。
-- `do_not_touch`：不应修改的范围，通常来自 non-goals。
+- `do_not_touch`：不应修改的具体文件、模块或符号，来自 task spec 的同名字段，不从语义 non-goals 自动推断。
 - `open_questions`：本地上下文无法确认的问题。
 
 ## 使用规则

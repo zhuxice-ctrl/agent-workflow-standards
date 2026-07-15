@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://local.agent-workflow-standards/schemas/design_alignment_report.schema.json",
+  "type": "object", "required": ["schema", "configured", "source_hashes", "requirements", "architecture_scope_additions", "semantic_review", "gate_status", "blocking_reasons"],
+  "properties": {
+    "schema": {"const": "ADworkflo.design_alignment_report.v1"}, "configured": {"type": "boolean"}, "created_at": {"type": ["string", "null"]},
+    "source_hashes": {"type": "object"}, "requirements": {"type": "array"}, "architecture_scope_additions": {"type": "array"},
+    "semantic_review": {"type": "object", "required": ["required", "status", "reviewer", "reviewed_at", "notes"], "properties": {"required": {"type": "boolean"}, "status": {"enum": ["pending", "approved", "changes_requested"]}, "reviewer": {"type": ["string", "null"]}, "reviewed_at": {"type": ["string", "null"]}, "notes": {"type": "array"}}, "additionalProperties": true},
+    "gate_status": {"enum": ["blocked", "passed"]}, "blocking_reasons": {"type": "array", "items": {"type": "string"}}
+  }, "additionalProperties": true
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "ADworkflo.context_expansion_request.v1",
+  "task_id": "unconfigured",
+  "status": "not_requested",
+  "relation": "callees",
+  "targets": [],
+  "depth": 2,
+  "budget": 100,
+  "reason": null,
+  "requested_by": null,
+  "source_graph_revision": null,
+  "applied_slice_revision": null
+}

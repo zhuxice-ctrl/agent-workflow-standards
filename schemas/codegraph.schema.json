@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/codegraph.schema.json",
+  "type": "object",
+  "required": ["schema", "provider", "created_at", "project", "limitations", "summary", "files", "symbols", "imports", "tests"],
+  "properties": {
+    "schema": {"const": "ADworkflo.codegraph.v1"},
+    "provider": {"const": "lightweight-l1"},
+    "created_at": {"type": "string"},
+    "project": {"type": "string"},
+    "limitations": {"type": "array"},
+    "summary": {"type": "object"},
+    "files": {"type": "array", "items": {"type": "object", "required": ["path", "language", "loc", "sha256", "mtime_ns", "is_test"]}},
+    "symbols": {"type": "array"},
+    "imports": {"type": "array"},
+    "tests": {"type": "array"}
+  },
+  "additionalProperties": true
+}

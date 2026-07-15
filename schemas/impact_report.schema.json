@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/impact_report.schema.json",
+  "type": "object",
+  "required": ["schema", "task_id", "status", "baseline_revision", "current_revision", "declared_files", "predicted_files", "changed_files", "observed_impact_files", "unexpected_impact", "symbol_delta", "edge_delta", "new_critical_unresolved_edges", "review_required"],
+  "properties": {
+    "schema": {"const": "ADworkflo.impact_report.v1"},
+    "task_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["not_run", "passed", "failed", "invalid"]},
+    "baseline_revision": {"type": ["string", "null"]},
+    "current_revision": {"type": ["string", "null"]},
+    "declared_files": {"type": "array", "items": {"type": "string"}},
+    "predicted_files": {"type": "array", "items": {"type": "string"}},
+    "changed_files": {"type": "array", "items": {"type": "string"}},
+    "observed_impact_files": {"type": "array", "items": {"type": "string"}},
+    "unexpected_impact": {"type": "array"},
+    "symbol_delta": {"type": "object"},
+    "edge_delta": {"type": "object"},
+    "new_critical_unresolved_edges": {"type": "array"},
+    "review_required": {"type": "boolean"}
+  },
+  "additionalProperties": true
+}

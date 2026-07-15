@@ -1,0 +1,15 @@
+{
+  "schema": "ADworkflo.layer_plan.v1",
+  "configured": false,
+  "mode": "standard",
+  "layers": [],
+  "capability_slices": [],
+  "cross_layer_gates": [
+    {"gate": "security", "status": "not_evaluated", "evidence": []},
+    {"gate": "privacy", "status": "not_evaluated", "evidence": []},
+    {"gate": "performance", "status": "not_evaluated", "evidence": []},
+    {"gate": "observability", "status": "not_evaluated", "evidence": []},
+    {"gate": "deployment", "status": "not_evaluated", "evidence": []},
+    {"gate": "end_to_end", "status": "not_evaluated", "evidence": []}
+  ]
+}

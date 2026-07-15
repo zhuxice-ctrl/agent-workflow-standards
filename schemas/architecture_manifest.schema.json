@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/architecture_manifest.schema.json",
+  "type": "object",
+  "required": ["schema", "configured", "project_size", "classification_source", "expected_complexity_score", "context_strategy", "execution_mode", "analysis_basis", "source_hashes", "detected_signals", "planned_modules", "suggested_modules", "risk_areas"],
+  "properties": {
+    "schema": {"const": "ADworkflo.architecture_manifest.v1"}, "configured": {"type": "boolean"},
+    "created_at": {"type": ["string", "null"]}, "project_size": {"enum": ["unknown", "small", "medium", "large"]},
+    "classification_source": {"type": "string"}, "expected_complexity_score": {"type": "integer", "minimum": 0},
+    "context_strategy": {"type": "string"}, "execution_mode": {"type": "string"}, "analysis_basis": {"type": "array"},
+    "source_hashes": {"type": "object"}, "detected_signals": {"type": "object"}, "planned_modules": {"type": "array"},
+    "suggested_modules": {"type": "array"}, "data_stores": {"type": "array"}, "agent_features": {"type": "array"},
+    "risk_areas": {"type": "array"}, "recommended_artifacts": {"type": "array"}, "recommended_next_actions": {"type": "array"}
+  }, "additionalProperties": true
+}

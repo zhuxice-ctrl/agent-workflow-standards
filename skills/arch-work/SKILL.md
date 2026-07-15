@@ -14,17 +14,20 @@ Read, in order:
 1. `PRD.md`
 2. `ARCH.md`
 3. `PROJECT.md`
-4. `.adworkflow/architecture_manifest.json` when it exists
-5. `.adworkflow/module_skills.md` when it exists
+4. `.adworkflow/design_alignment_report.json` when it exists
+5. `.adworkflow/architecture_manifest.json` when it exists
+6. `.adworkflow/module_skills.md` when it exists
 
 If `.adworkflow/` is missing, initialize ADworkflo before continuing.
 
 ## Workflow
 
-1. Confirm `ARCH.md` contains an MVP flow, module boundaries, and a declared module skill plan.
-2. Treat ARCH declarations as authority. Do not decide new module skills by complexity score.
-3. Update or prepare `.adworkflow/module_skills.md` from the ARCH-declared module skill plan.
-4. Confirm TODO can audit the ARCH modules. If TODO is missing module skill tasks, report the gap for TODOwork.
+1. Run `design_alignment.py analyze` and require an independent semantic review of PRD against ARCH.
+2. Stop before TODOwork while `design_alignment_report.gate_status` is `blocked`.
+3. Confirm `ARCH.md` contains an MVP flow, module boundaries, and a declared module skill plan.
+4. Treat aligned ARCH declarations as execution authority. Do not decide new module skills by complexity score.
+5. Update or prepare `.adworkflow/module_skills.md` from the ARCH-declared module skill plan.
+6. Confirm TODO can audit the ARCH modules. If TODO is missing module skill tasks, report the gap for TODOwork.
 5. Preserve uncertain or underspecified areas as execution notes. Do not add extra business constraints in this window.
 
 ## Required ARCH Sections
@@ -46,6 +49,7 @@ Minimum expected sections:
 Write or update only ADworkflo/project planning artifacts:
 
 - `.adworkflow/architecture_manifest.json`
+- `.adworkflow/design_alignment_report.json`
 - `.adworkflow/module_skills.md`
 - `.adworkflow/worker_state.json` when this skill performs a document task
 

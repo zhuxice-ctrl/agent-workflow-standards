@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://local.agent-workflow-standards/schemas/interface_contracts.schema.json",
+  "type": "object", "required": ["schema", "configured", "contracts"],
+  "properties": {"schema": {"const": "ADworkflo.interface_contracts.v1"}, "configured": {"type": "boolean"}, "contracts": {"type": "array", "items": {"type": "object", "required": ["contract_id", "provider", "consumers", "inputs", "outputs", "errors", "compatibility", "verification"], "properties": {"contract_id": {"type": "string"}, "provider": {"type": "string"}, "consumers": {"type": "array"}, "inputs": {"type": "array"}, "outputs": {"type": "array"}, "errors": {"type": "array"}, "compatibility": {"type": "string"}, "verification": {"type": "array"}}, "additionalProperties": true}}},
+  "additionalProperties": true
+}

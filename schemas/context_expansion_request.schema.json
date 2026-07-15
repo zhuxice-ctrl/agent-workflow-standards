@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/context_expansion_request.schema.json",
+  "type": "object",
+  "required": ["schema", "task_id", "status", "relation", "targets", "depth", "budget", "reason", "requested_by", "source_graph_revision"],
+  "properties": {
+    "schema": {"const": "ADworkflo.context_expansion_request.v1"},
+    "task_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["not_requested", "pending", "applied", "rejected"]},
+    "relation": {"enum": ["callees", "callers", "both"]},
+    "targets": {"type": "array", "items": {"type": "string"}},
+    "depth": {"type": "integer", "minimum": 0},
+    "budget": {"type": "integer", "minimum": 1},
+    "reason": {"type": ["string", "null"]},
+    "requested_by": {"type": ["string", "null"]},
+    "source_graph_revision": {"type": ["string", "null"]},
+    "applied_slice_revision": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}

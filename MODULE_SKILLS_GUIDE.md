@@ -1,5 +1,7 @@
 # Module Skills Guide
 
+产品表现层、后端协议层和数据支撑层是产品架构维度，不自动等同于三个 module skills。只有 ARCH 明确声明了可重复的模块规则时才生成 module skill；layer contract 负责四问和独立审计，module skill 负责具体模块实现约束。
+
 模块 skill 是项目内的局部开发规则，不是全局方法论。它用于把某个模块里反复出现、容易出错、需要稳定执行的知识封装起来。
 
 真实开发中，是否生成 module skill 由开发者在 `ARCH.md` 的 `Module Skill Plan` 中显式声明。第二层 ADworkflo 不靠复杂度打分自行决定；TODO 只负责把这些声明审计化呈现，TODOwork 负责执行生成和编排。

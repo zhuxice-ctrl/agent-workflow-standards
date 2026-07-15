@@ -1,46 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://local.agent-workflow-standards/schemas/context_raw.schema.json",
-  "title": "ADworkflo context_raw",
   "type": "object",
-  "required": [
-    "schema",
-    "task_id",
-    "source",
-    "matched_files",
-    "matched_symbols",
-    "likely_tests",
-    "warnings"
-  ],
+  "required": ["schema", "task_id", "source", "matched_files", "matched_symbols", "likely_tests", "warnings"],
   "properties": {
-    "schema": {
-      "const": "ADworkflo.context_raw.v1"
-    },
-    "task_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "source": {
-      "type": "string"
-    },
-    "matched_files": {
-      "type": "array"
-    },
-    "matched_symbols": {
-      "type": "array"
-    },
-    "likely_tests": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "warnings": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    }
+    "schema": {"const": "ADworkflo.context_raw.v1"},
+    "task_id": {"type": "string", "minLength": 1},
+    "source": {"type": "string", "minLength": 1},
+    "matched_files": {"type": "array"},
+    "matched_symbols": {"type": "array"},
+    "likely_tests": {"type": "array", "items": {"type": "string"}},
+    "warnings": {"type": "array", "items": {"type": "string"}}
   },
   "additionalProperties": true
 }

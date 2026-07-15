@@ -7,11 +7,12 @@ This project uses ADworkflo for AI-assisted engineering execution.
 1. Read `PRD.md`, `ARCH.md`, `TODO.md`, and `PROJECT.md` when they exist.
 2. Read `.adworkflow/architecture_manifest.json`.
 3. Read `.adworkflow/permissions.md`, `.adworkflow/verification_commands.md`, and `.adworkflow/module_skills.md`.
-4. Read `.adworkflow/execution_plan.json` when executing MVP/module work.
-5. Read `.adworkflow/task_spec.json` or `.adworkflow/task_specs/<task_id>.json`.
-6. Run or refresh context through `prepare_context.py`.
-7. Read `.adworkflow/context_manifest.json`.
-8. Use `.codegraph/index.json` only after implementation files exist.
+4. Require `.adworkflow/design_alignment_report.json` to pass before ARCH/TODO execution.
+5. Read `.adworkflow/layer_plan.json` when layered development is active.
+6. Read `.adworkflow/execution_plan.json` when executing MVP/module work.
+7. Read `.adworkflow/task_spec.json` or the run-scoped task spec.
+8. Run or refresh context through `prepare_context.py`.
+9. Resume complex runs from `.adworkflow/runs/<run_id>/resume_manifest.json`.
 
 ## Main Window Flow
 
@@ -42,7 +43,7 @@ When the user gives a development task in the main window:
 3. Before implementation, create or update `.adworkflow/task_spec.json`.
 4. For TODOwork module execution, create or update `.adworkflow/execution_plan.json` before spawning subagents.
 5. Before broad code reading, create or update `.adworkflow/context_manifest.json`.
-6. Default to one worker for a single task. For TODOwork batches, worker count is unbounded by design and follows TODO module split plus ARCH dependencies.
+6. Default to one worker for a single task. For TODOwork batches, dispatch only ready tasks within `max_parallel_workers`.
 7. After edits, update `.adworkflow/worker_state.json`.
 8. Before claiming completion, update `.adworkflow/verification_result.json`.
 9. For medium/high risk tasks, use `.adworkflow/review_findings.json`.

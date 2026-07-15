@@ -67,6 +67,6 @@
 - ARCH 是 MVP 开发流程的主依据。
 - TODO 只作为模块化审计清单。
 - TODOwork 根据 TODO 生成 `.adworkflow/execution_plan.json`。
-- 子 agent 数量不设固定上限，由 TODO 模块拆分和 ARCH 依赖决定。
+- 逻辑任务数由 TODO 模块拆分决定，运行时并发受 `max_parallel_workers`、平台容量和 ARCH 依赖限制。
 - 子 agent 遇到 ARCH 细节不足时，上报主窗口；主窗口复核 PRD/ARCH/TODO，仍不确定时问用户。
 - 用户超时未反馈时，主窗口按最接近 PRD/ARCH 的解释给出 fallback，并要求子 agent 写入 `worker_state`。

@@ -1,0 +1,9 @@
+{
+  "name": "@adworkflo/typescript-codegraph-provider",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "typescript": "5.9.3"
+  }
+}

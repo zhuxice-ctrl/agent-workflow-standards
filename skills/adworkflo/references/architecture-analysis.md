@@ -8,8 +8,9 @@ Read first-layer docs such as:
 - `ARCH.md`
 - `TODO.md`
 - `PROJECT.md`
-- `README.md`
-- user-provided product, architecture, roadmap, or task documents
+- user-provided product, architecture, roadmap, or task documents passed explicitly with `--docs`
+
+Do not implicitly treat README, meeting notes, audit reports, or arbitrary shallow Markdown as product architecture input.
 
 ## Classification Signals
 
@@ -45,6 +46,7 @@ Large project:
 PRD / ARCH / TODO / PROJECT
 -> init_adworkflow.py or analyze_project_plan.py
 -> .adworkflow/architecture_manifest.json
+-> design_alignment_report structural and semantic gate
 -> task_spec
 -> context_manifest from architecture first
 -> worker implementation

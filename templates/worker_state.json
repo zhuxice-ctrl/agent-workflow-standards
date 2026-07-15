@@ -1,6 +1,8 @@
 {
-  "task_id": "替换为短标识",
-  "status": "in_progress",
+  "schema": "ADworkflo.worker_state.v1",
+  "task_id": "unconfigured",
+  "status": "not_started",
+  "revision": 0,
   "done": [],
   "changed_files": [],
   "current_problem": null,
@@ -9,5 +11,6 @@
   "discarded_context": [],
   "remaining_risks": [],
   "clarification_events": [],
-  "timeout_fallbacks": []
+  "timeout_fallbacks": [],
+  "context_expansion_history": []
 }

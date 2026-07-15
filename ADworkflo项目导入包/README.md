@@ -42,11 +42,15 @@ F:\agent-workflow-standards
   ARCH.md
   TODO.md
   PROJECT.md
+  AGENTS.md
   .codex/
     AGENT_HEADER.md
   .adworkflow/
     ADWORKFLOW_PROFILE.json
     architecture_manifest.json
+    design_alignment_report.json
+    layer_plan.json
+    interface_contracts.json
     execution_plan.json
     task_specs/
     task_spec.json
@@ -61,6 +65,7 @@ F:\agent-workflow-standards
     review_checklist.md
     final_summary.template.md
     artifacts/
+    runs/
   .codegraph/
     config.json
 ```

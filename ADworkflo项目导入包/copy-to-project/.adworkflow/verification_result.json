@@ -1,10 +1,12 @@
 {
-  "task_id": "",
+  "schema": "ADworkflo.verification_result.v1",
+  "task_id": "unconfigured",
+  "status": "not_run",
+  "source_revision": null,
   "commands": [],
+  "acceptance_criteria_coverage": [],
   "passed": [],
   "failed": [],
-  "not_run": [],
-  "summary": "",
-  "residual_risk": ""
+  "not_run_reason": "Task is not configured.",
+  "residual_risk": []
 }
-

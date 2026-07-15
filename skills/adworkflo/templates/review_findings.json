@@ -1,12 +1,12 @@
 {
-  "task_id": "",
-  "status": "approved",
+  "schema": "ADworkflo.review_findings.v1",
+  "task_id": "unconfigured",
+  "status": "not_reviewed",
+  "reviewer": null,
+  "source_revision": null,
+  "review_basis": ["task_spec", "patch_or_change_summary", "verification_result"],
   "blocking_findings": [],
   "non_blocking_findings": [],
-  "review_basis": [
-    "task_spec",
-    "change_summary_or_diff",
-    "verification_result"
-  ]
+  "suggested_tests": [],
+  "risk_notes": []
 }
-

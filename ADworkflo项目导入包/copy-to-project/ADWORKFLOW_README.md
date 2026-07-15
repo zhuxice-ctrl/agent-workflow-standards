@@ -66,16 +66,49 @@ PROJECT.md
 -> 运行 .\prepare-context.ps1
 -> 得到 .adworkflow/context_raw.json
 -> 得到 .adworkflow/context_manifest.json
+-> L2 任务得到 semantic_slice.json 和 context_preflight.json
+-> preflight accepted 后才进入实现
 -> 按 module_skills.md 判断是否加载模块 skill
 -> 子 agent 按 execution_plan 并发实现
 -> 写 worker_state.json
 -> 按 verification_commands.md 验证
+-> 运行 codegraph-post-edit.ps1 生成实际 impact_report.json
 -> 写 verification_result.json
 -> 中/高风险任务写 review_findings.json
 -> 必要时归档到 .adworkflow/artifacts/<task_id>/
 ```
 
 ## 本地脚本
+
+```powershell
+.\align-design.ps1
+```
+
+生成 PRD-ARCH 结构覆盖报告。结构覆盖完成后，使用独立 Reviewer 名称批准语义审计：
+
+```powershell
+.\align-design.ps1 -Reviewer independent-design-reviewer
+```
+
+```powershell
+.\layered-development.ps1
+```
+
+仅在用户明确要求分层开发时，生成产品表现层、后端协议层、数据支撑层的四问契约。
+
+```powershell
+.\validate-adworkflow.ps1
+```
+
+校验当前 artifacts 和 execution plan。
+
+```powershell
+.\orchestrator.ps1 -RunId mvp-1 -Command start
+.\orchestrator.ps1 -RunId mvp-1 -Command ready
+.\orchestrator.ps1 -RunId mvp-1 -Command resume
+```
+
+创建 run-scoped 主窗口状态、查询 ready tasks，并在上下文压缩后恢复。
 
 ```powershell
 .\analyze-product-docs.ps1
@@ -87,19 +120,37 @@ PROJECT.md
 .\prepare-context.ps1
 ```
 
-根据当前 `.adworkflow/task_spec.json` 生成 `context_raw.json` 和 `context_manifest.json`。如果项目已经有代码但还没有 `.codegraph/index.json`，会自动先构建轻量 codegraph。
+根据当前 `.adworkflow/task_spec.json` 生成上下文。L0/L1 写 `context_raw.json` 和 `context_manifest.json`；L2 还会写 `semantic_slice.json` 与 `context_preflight.json`。
 
 ```powershell
-.\build-codegraph.ps1
+.\build-codegraph.ps1 -Level l2
 ```
 
-手动重建 `.codegraph/index.json`。
+手动重建 `.codegraph/index.json` 或 `.codegraph/l2.sqlite`。
+
+```powershell
+.\setup-l2-provider.ps1
+```
+
+安装 TypeScript/JavaScript L2 provider runtime。Python L2 无额外依赖。
+
+```powershell
+.\apply-context-expansion.ps1
+```
+
+应用 pending `context_expansion_request.json`，同步更新 semantic slice、preflight、context manifest 和 worker expansion history。
+
+```powershell
+.\codegraph-post-edit.ps1 -TaskId <task_id>
+```
+
+按 preflight revision 读取基线，从 `worker_state.changed_files` 和 manifest 读取声明/预测范围，自动重建当前图并生成 `impact_report.json`。
 
 ```powershell
 .\init-adworkflow.ps1 -Force
 ```
 
-用全局模板重新生成本地工作流文件。谨慎使用，可能覆盖本地配置。
+更新机器生成的本地工作流文件，但保留 permissions、verification commands、module skills 和 review checklist。只有显式传入 `-ForceUserConfig` 才覆盖这些用户维护文件。
 
 ## 需要你手动维护的文件
 

@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://local.agent-workflow-standards/schemas/artifact_registry.schema.json",
+  "type": "object", "required": ["schema", "run_id", "revision", "artifacts"],
+  "properties": {"schema": {"const": "ADworkflo.artifact_registry.v1"}, "run_id": {"type": "string"}, "revision": {"type": "integer", "minimum": 0}, "artifacts": {"type": "array", "items": {"type": "object", "required": ["artifact_id", "path", "kind", "revision", "sha256", "status"], "properties": {"artifact_id": {"type": "string"}, "path": {"type": "string"}, "kind": {"type": "string"}, "revision": {"type": "integer"}, "sha256": {"type": "string"}, "status": {"enum": ["current", "superseded", "invalid"]}}, "additionalProperties": true}}}, "additionalProperties": true
+}

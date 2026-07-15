@@ -1,0 +1,17 @@
+{
+  "schema": "ADworkflo.context_preflight.v1",
+  "task_id": "unconfigured",
+  "status": "not_prepared",
+  "graph_revision": null,
+  "slice_revision": null,
+  "confidence": 0,
+  "confidence_threshold": 0.8,
+  "freshness": {},
+  "provider_capabilities": [],
+  "missing_capabilities": {},
+  "invalid_reasons": [],
+  "expansion_reasons": [],
+  "required_actions": [],
+  "critical_unresolved_edges": [],
+  "expansion_history": []
+}

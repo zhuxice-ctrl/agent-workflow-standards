@@ -99,24 +99,16 @@ def strategy_for_size(size: str) -> str:
         return "L0-rg-manual-context-manifest"
     if size == "medium":
         return "L1-symbol-import-test-index"
-    return "L2-full-codegraph"
+    return "L2-semantic-codegraph"
 
 
 def queries_for_size(size: str) -> list[str]:
     if size == "small":
-        return ["rg_search", "file_tree", "manual_context_manifest"]
-    if size == "medium":
-        return ["find_definition", "find_importers", "tests_for", "summarize_file"]
-    return [
-        "find_definition",
-        "find_references",
-        "callers",
-        "callees",
-        "impacted_files",
-        "tests_for",
-        "get_slice",
-        "summarize_file",
-    ]
+        return ["summary", "find_definition", "tests_for", "make_context"]
+    base = ["summary", "find_definition", "find_importers", "tests_for", "summarize_file", "make_context"]
+    if size == "large":
+        base.extend(["capabilities", "find_references", "callers", "callees", "impact", "slice", "expand"])
+    return base
 
 
 def classify_project(source_count: int, loc: int, forced: str) -> tuple[str, str, list[str]]:
@@ -169,7 +161,12 @@ def main() -> int:
         action="store_true",
         help="Skip first-layer PRD/ARCH/TODO/PROJECT analysis and use source scan classification only.",
     )
-    parser.add_argument("--force", action="store_true", help="Overwrite existing ADworkflo files.")
+    parser.add_argument("--force", action="store_true", help="Overwrite generated ADworkflo files but preserve user-maintained config.")
+    parser.add_argument(
+        "--force-user-config",
+        action="store_true",
+        help="Explicitly overwrite user-maintained permissions, verification, module-skill, and review files.",
+    )
     args = parser.parse_args()
 
     project = Path(args.project).resolve()
@@ -210,9 +207,14 @@ def main() -> int:
         "LANGUAGES_JSON": json.dumps(languages, ensure_ascii=False, indent=2),
         "INCLUDE_DIRS_JSON": json.dumps(include_dirs, ensure_ascii=False, indent=2),
         "SUPPORTED_QUERIES_JSON": json.dumps(queries, ensure_ascii=False, indent=2),
+        "CODEGRAPH_LEVEL": "l2" if size == "large" else "l1",
     }
 
     outputs: list[tuple[str, bool]] = []
+    outputs.append((
+        "AGENTS.md",
+        write_file(project / "AGENTS.md", render_template("AGENTS.md.tpl", values), False),
+    ))
     outputs.append((
         ".codex/AGENT_HEADER.md",
         write_file(project / ".codex" / "AGENT_HEADER.md", render_template("AGENT_HEADER.md.tpl", values), args.force),
@@ -227,6 +229,7 @@ def main() -> int:
     ))
 
     profile = {
+        "schema": "ADworkflo.profile.v1",
         "project_size": size,
         "context_strategy": strategy,
         "source_file_count": source_count,
@@ -241,6 +244,7 @@ def main() -> int:
     if architecture_manifest and architecture_manifest.get("analysis_basis"):
         profile.update({
             "planned_modules": architecture_manifest["planned_modules"],
+            "suggested_modules": architecture_manifest.get("suggested_modules", []),
             "risk_areas": architecture_manifest["risk_areas"],
             "agent_features": architecture_manifest["agent_features"],
         })
@@ -273,9 +277,19 @@ def main() -> int:
         "task_spec.json",
         "context_raw.json",
         "context_manifest.json",
+        "semantic_slice.json",
+        "context_preflight.json",
+        "context_expansion_request.json",
+        "impact_report.json",
         "worker_state.json",
         "verification_result.json",
         "review_findings.json",
+        "design_alignment_report.json",
+        "layer_plan.json",
+        "interface_contracts.json",
+        "orchestrator_state.json",
+        "resume_manifest.json",
+        "artifact_registry.json",
     ]:
         outputs.append((
             f".adworkflow/{name}",
@@ -293,7 +307,7 @@ def main() -> int:
     ]:
         outputs.append((
             f".adworkflow/{target_name}",
-            copy_template(template_name, project / ".adworkflow" / target_name, args.force),
+            copy_template(template_name, project / ".adworkflow" / target_name, args.force_user_config),
         ))
 
     print("ADworkflo initialized")

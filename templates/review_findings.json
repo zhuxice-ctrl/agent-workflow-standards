@@ -1,6 +1,10 @@
 {
-  "task_id": "替换为短标识",
-  "status": "approved",
+  "schema": "ADworkflo.review_findings.v1",
+  "task_id": "unconfigured",
+  "status": "not_reviewed",
+  "reviewer": null,
+  "source_revision": null,
+  "review_basis": ["task_spec", "patch_or_change_summary", "verification_result"],
   "blocking_findings": [],
   "non_blocking_findings": [],
   "suggested_tests": [],

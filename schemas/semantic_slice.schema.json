@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent-workflow-standards/schemas/semantic_slice.schema.json",
+  "type": "object",
+  "required": ["schema", "status", "graph_revision", "entrypoints", "entrypoint_resolutions", "included_symbols", "included_files", "boundary_symbols", "excluded", "unresolved_edges", "likely_tests", "coverage", "confidence", "truncated", "source_hashes", "provenance", "expansion_history"],
+  "properties": {
+    "schema": {"const": "ADworkflo.semantic_slice.v1"},
+    "status": {"enum": ["not_prepared", "ready", "invalid"]},
+    "graph_revision": {"type": ["string", "null"]},
+    "entrypoints": {"type": "array", "items": {"type": "string"}},
+    "entrypoint_resolutions": {"type": "array"},
+    "included_symbols": {"type": "array"},
+    "included_files": {"type": "array", "items": {"type": "string"}},
+    "boundary_symbols": {"type": "array"},
+    "excluded": {"type": "array"},
+    "unresolved_edges": {"type": "array"},
+    "likely_tests": {"type": "array", "items": {"type": "string"}},
+    "coverage": {"type": "object"},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "truncated": {"type": "boolean"},
+    "source_hashes": {"type": "object", "additionalProperties": {"type": "string"}},
+    "provenance": {"type": "array"},
+    "parameters": {"type": "object"},
+    "expansion_history": {"type": "array"},
+    "predicted_impact_files": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

@@ -1,6 +1,6 @@
 ---
 name: todo-work
-description: "Use TODOwork after ARCH/TODO are written to turn first-layer module checklists into ADworkflo execution plans: execution_plan.json, per-module task boundaries, unbounded-by-design subagent orchestration batches, module skill routing, clarification handoff, timeout fallback records, and worker artifact expectations. Trigger when the user says 使用 TODOwork, TODOwork skill, 根据 TODO 编排子 agent, or asks to execute ARCH/TODO module development."
+description: "Use TODOwork after ARCH/TODO are written to turn first-layer module checklists into capacity-aware ADworkflo execution plans, per-module task boundaries, module skill routing, clarification handoff, timeout fallback records, and worker artifact expectations. Trigger when the user says 使用 TODOwork, TODOwork skill, 根据 TODO 编排子 agent, or asks to execute ARCH/TODO module development."
 ---
 
 # TODOwork
@@ -18,6 +18,8 @@ Read, in order:
 5. `.adworkflow/architecture_manifest.json`
 6. `.adworkflow/permissions.md`
 7. `.adworkflow/verification_commands.md`
+8. `.adworkflow/design_alignment_report.json`
+9. `.adworkflow/layer_plan.json` when layered development is active
 
 If `.adworkflow/execution_plan.json` exists, update it instead of starting from scratch.
 
@@ -25,11 +27,13 @@ If `.adworkflow/execution_plan.json` exists, update it instead of starting from 
 
 1. Parse TODO into module tasks and audit IDs.
 2. Map each TODO item back to ARCH module boundaries and MVP flow.
-3. Generate or update `.adworkflow/execution_plan.json`.
-4. Create task boundaries for each module task: goal, non-goals, dependencies, expected outputs, and assigned module skill.
-5. Batch tasks for subagent execution. Worker count is unbounded by design; actual batches are determined by TODO module split and dependencies.
-6. Require each subagent to output `diff` or changed-file summary plus `worker_state`.
-7. Record uncertain details as clarification events in `worker_state`; do not make review judgments inside worker execution.
+3. Stop when `design_alignment_report.gate_status` is not `passed`.
+4. In layered mode, map product capability slices to presentation/protocol/data tasks without imposing a fixed layer order.
+5. Generate or update `.adworkflow/execution_plan.json`.
+6. Create task boundaries for each module task: goal, non-goals, dependencies, expected outputs, and assigned module skill.
+7. Batch tasks for subagent execution using the configured runtime capacity and dependencies.
+8. Require each subagent to output `diff` or changed-file summary plus `worker_state`.
+9. Record uncertain details as clarification events in `worker_state`; do not make review judgments inside worker execution.
 
 ## Concurrency Rule
 
@@ -43,7 +47,7 @@ execution_plan decides batches and parallelism.
 task_spec decides each subagent boundary.
 ```
 
-There is no hard worker limit. Use as many subagents as the TODO module split requires. Batch tasks only by explicit dependency order, shared task boundary, or ARCH-stated sequence.
+Keep logical task decomposition independent from runtime capacity. Configure `worker_policy.max_parallel_workers` for the current platform, and dispatch only the ready tasks returned by dependency and capacity checks.
 
 ## Clarification And Timeout
 

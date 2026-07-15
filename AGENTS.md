@@ -11,6 +11,10 @@
 5. 完成前必须有 `verification_result`。
 6. Reviewer 默认只看 `patch.diff`、`task_spec` 和 `verification_result`。
 7. 不把长聊天记录当交接材料，只交接结构化 artifact。
+8. PRD/ARCH 任务必须通过 `design_alignment_report`；分层开发必须先配置三层四问契约。
+9. 多任务执行使用 `.adworkflow/runs/<run_id>/`，上下文压缩后按 `resume_manifest` 恢复。
+10. L2 任务只有 `context_preflight.status=accepted` 才能开工；`needs_expansion` 必须先应用扩展请求。
+11. L2 修改后重建图并检查 `impact_report`；意外波及或新增关键未解析边会阻止 verified。
 
 ## 主窗口顺序
 
@@ -22,3 +26,4 @@
 6. 读取 `.adworkflow/context_manifest.json`。
 7. 按 `.adworkflow/module_skills.md` 判断是否加载模块 skill。
 8. 子 agent 实现、输出 diff/change summary + worker_state，并更新 artifacts。
+9. 主窗口按 `max_parallel_workers` 和依赖分派 ready tasks，不把逻辑任务数当运行时并发数。

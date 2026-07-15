@@ -1,7 +1,9 @@
 param(
   [string]$Project = (Get-Location).Path,
   [string]$Task = "",
-  [switch]$NoBuildIndex
+  [switch]$NoBuildIndex,
+  [ValidateSet("auto", "l1", "l2")]
+  [string]$Level = "auto"
 )
 
 $ErrorActionPreference = "Stop"
@@ -18,6 +20,7 @@ if ([string]::IsNullOrWhiteSpace($SkillRoot)) {
 $script = Join-Path $SkillRoot "scripts\prepare_context.py"
 
 $argsList = @("-3", $script, "--project", $Project)
+$argsList += @("--level", $Level)
 if ($Task -ne "") {
   $argsList += @("--task", $Task)
 }

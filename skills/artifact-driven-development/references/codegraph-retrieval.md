@@ -1,129 +1,28 @@
 # Codegraph 检索协议
 
-Codegraph 检索用于减少不必要的上下文。
+使用最轻的充分策略：小项目 L0、中项目 L1、大项目或深调用链任务使用经过 capability probe 的 L2。未支持语言保持 L1，不能用正则结果冒充语义图。
 
-Agent 在读取大面积代码前，应使用图来定位真正相关的内容。
+## L2 顺序
 
-## 1. 工具契约
+1. 在 `task_spec.entrypoints` 使用 stable ID 或唯一 qualified symbol。
+2. 生成 `.codegraph/l2.sqlite` 和 revision snapshot。
+3. 查询 definitions、references、callers、callees、imports、tests 与 impact。
+4. 生成 `semantic_slice.json` 和 `context_preflight.json`。
+5. 仅在 preflight 为 `accepted` 时 dispatch worker。
+6. `needs_expansion` 时填写 `context_expansion_request.json` 并运行 `apply_context_expansion.py`。
+7. 修改后运行 `codegraph_post_edit.py`，Reviewer 检查 `impact_report.json` 的实际波及范围。
 
-推荐工具接口：
+## 必须暴露的信息
 
-```text
-find_definition(symbol)
-find_references(symbol)
-callers(function)
-callees(function)
-impacted_files(file)
-tests_for(symbol_or_file)
-get_slice(entrypoint, depth=2)
-summarize_file(file, budget=800)
-```
+- graph revision 与 provider provenance
+- included、boundary、excluded symbols/files
+- unresolved edges 与 criticality
+- coverage、confidence、truncated
+- source hashes 与 freshness
+- prediction reasons 和 post-edit edge delta
 
-## 2. 检索顺序
+切片是 locator，不是源码真相或读取白名单。入口歧义、源漂移、provider 能力不足为 `invalid`；关键未解析边、低置信度、预算截断为 `needs_expansion`。不得通过聊天文字把这两种状态改写成已接受。
 
-除非任务给出更合适的路径，否则按以下顺序执行：
+## 预算
 
-1. 识别入口符号、文件或面向用户的行为。
-2. 查找定义。
-3. 查找引用和调用方。
-4. 查找受影响的测试。
-5. 读取定向代码切片。
-6. 仅在需要时扩展到被调用方或受影响文件。
-
-## 3. Context Raw 与 Context Manifest
-
-Locator 应在实现前先保留原始检索证据：
-
-```json
-{
-  "schema": "ADworkflo.context_raw.v1",
-  "task_id": "task-id",
-  "source": "codegraph-index",
-  "matched_files": [],
-  "matched_symbols": [],
-  "likely_tests": [],
-  "warnings": []
-}
-```
-
-再压缩成 worker-facing manifest：
-
-```json
-{
-  "task_id": "task-id",
-  "context_level": "L1-index",
-  "read_first": [],
-  "relevant_symbols": [],
-  "entrypoints": [],
-  "likely_tests": [],
-  "do_not_touch": [],
-  "open_questions": []
-}
-```
-
-## 4. 预算规则
-
-推荐限制：
-
-```text
-initial_manifest: 1000-2000 tokens
-single_tool_response: 300-800 tokens
-max_queries_per_round: 3-5
-slice_depth_default: 1-2
-```
-
-如果结果超出预算：
-
-- 降低深度
-- 摘要化
-- 对符号排序
-- 按模块拆分
-- 请求更窄的切片
-
-## 5. 何时读取完整文件
-
-在以下情况下允许读取完整文件：
-
-- 文件较小
-- 文件是配置文件
-- 文件是直接实现目标
-- 读取切片的成本高于读取整个文件
-
-在以下情况下应避免读取完整文件：
-
-- 文件较大
-- 文件包含多个无关职责
-- 只有一个符号相关
-- 任务只需要调用方/被调用方上下文
-
-## 6. 影响升级
-
-当 patch 触及以下内容时，请求影响分析：
-
-- public API
-- auth 或 permissions
-- payment 或 billing
-- data migrations
-- cache behavior
-- concurrency
-- global types
-- state machines
-- serialization/deserialization
-
-## 7. 输出风格
-
-Codegraph 响应应紧凑且结构化。
-
-推荐：
-
-```json
-{
-  "symbol": "SessionStore.save",
-  "definition": "src/auth/session.ts:44",
-  "callers": ["src/auth/refresh.ts:88"],
-  "tests": ["test/auth/session.test.ts"],
-  "notes": ["expiresAt 需要 epoch 毫秒"]
-}
-```
-
-除非明确要求，否则避免冗长的叙事性解释。
+默认 depth 2、item budget 100、confidence threshold 0.80。超预算时缩小入口或按关系扩展，不删除 boundary/unresolved evidence。
